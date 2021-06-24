@@ -19,7 +19,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Modules\\CupChart\\src\\CupChartServiceProvider"
+                "Modules\\CupChart\\Providers\\CupChartServiceProvider"
             ],
             "aliases": {
 
@@ -28,7 +28,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Modules\\CupChart\\": "src"
+            "Modules\\CupChart\\": ""
         }
     }
 }

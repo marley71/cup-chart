@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\CupSite\Providers;
+namespace Modules\CupChart\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Factory;
@@ -18,7 +18,7 @@ class CupChartServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
         $this->registerFactories();
-        $this->loadMigrationsFrom(module_path('CupSite', 'Database/Migrations'));
+        $this->loadMigrationsFrom(module_path('CupChart', 'Database/Migrations'));
         $this->cupparisPublish();
     }
 

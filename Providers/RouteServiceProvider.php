@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\CupSite\Providers;
+namespace Modules\CupChart\Providers;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
@@ -49,7 +49,7 @@ class RouteServiceProvider extends ServiceProvider
     {
         Route::middleware('web')
             ->namespace($this->moduleNamespace)
-            ->group(module_path('CupSite', '/Routes/web.php'));
+            ->group(module_path('CupChart', '/Routes/web.php'));
     }
 
     /**

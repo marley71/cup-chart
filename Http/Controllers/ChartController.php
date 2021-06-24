@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\CupSite\Http\Controllers;
+namespace Modules\CupChart\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\ImportazioneTabella;
