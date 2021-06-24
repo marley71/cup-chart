@@ -5,7 +5,7 @@ namespace Modules\CupSite\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Factory;
 
-class CupChartProvider extends ServiceProvider
+class CupChartServiceProvider extends ServiceProvider
 {
     /**
      * Boot the application events.
