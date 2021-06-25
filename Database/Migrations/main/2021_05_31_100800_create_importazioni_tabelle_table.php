@@ -19,8 +19,6 @@ class CreateImportazioniTabelleTable extends Migration
             $table->foreign('importazione_id')->references('id')->on('importazioni')
                 ->onDelete('cascade')->onUpdate('cascade');
             $table->string('nome',2000)->nullable();
-            $table->integer('anno_dati')->nullable();
-            $table->text('note')->nullable();
             $table->text('descrizione')->nullable();
             $table->string('sheetname')->nullable();
             $table->integer('progressivo')->nullable()->default(1);

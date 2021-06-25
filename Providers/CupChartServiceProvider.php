@@ -33,6 +33,23 @@ class CupChartServiceProvider extends ServiceProvider
     }
 
     /**
+     * Register translations.
+     *
+     * @return void
+     */
+    public function registerTranslations()
+    {
+//        $langPath = resource_path('lang/modules/cupsite');
+//
+//        if (is_dir($langPath)) {
+//            $this->loadTranslationsFrom($langPath, 'cupsite');
+//        } else {
+//            $this->loadTranslationsFrom(module_path('CupSite', 'Resources/lang'), 'cupsite');
+//        }
+    }
+
+
+    /**
      * Register config.
      *
      * @return void
@@ -67,21 +84,7 @@ class CupChartServiceProvider extends ServiceProvider
         }, \Config::get('view.paths')), [$sourcePath]), 'cup-chart');
     }
 
-    /**
-     * Register translations.
-     *
-     * @return void
-     */
-    public function registerTranslations()
-    {
-//        $langPath = resource_path('lang/modules/cupsite');
-//
-//        if (is_dir($langPath)) {
-//            $this->loadTranslationsFrom($langPath, 'cupsite');
-//        } else {
-//            $this->loadTranslationsFrom(module_path('CupSite', 'Resources/lang'), 'cupsite');
-//        }
-    }
+
 
     /**
      * Register an additional directory of factories.
@@ -114,10 +117,18 @@ class CupChartServiceProvider extends ServiceProvider
 
         //Publishing and overwriting app folders
         $this->publishes([
+            __DIR__ . '/../app/Console/Commands' => app_path('Console/Commands'),
+
+        ], 'commands');
+
+
+        //Publishing and overwriting app folders
+        $this->publishes([
             __DIR__ . '/../app/Models' => app_path('Models'),
             __DIR__ . '/../app/Models/Relations' => app_path('Models/Relations'),
             __DIR__ . '/../app/Policies' => app_path('Policies'),
             __DIR__ . '/../app/Foorm' => app_path('Foorm'),
+            __DIR__ . '/../app/Services' => app_path('Services'),
             __DIR__ . '/../app/Http/Controllers' => app_path('Http/Controllers'),
         ], 'models');
 

@@ -20,11 +20,6 @@ class CreateImportazioniTable extends Migration
             $table->string('filename')->nullable();
             $table->string('ext', 6);
             $table->text('data')->nullable();
-            $table->integer('anno_rap')->nullable();
-            $table->integer('menu_id')->unsigned()->nullable();
-            $table->foreign('menu_id')->references('id')->on('menu')->onDelete('cascade');
-            $table->integer('fonte_id')->unsigned()->nullable();
-            $table->foreign('fonte_id')->references('id')->on('fonti')->onDelete('cascade');
             $table->nullableTimestamps();
             $table->nullableOwnerships();
         });

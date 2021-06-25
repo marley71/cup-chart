@@ -1,6 +1,5 @@
-<?php
+<?php namespace Modules\CupChart\Models;
 
-namespace App\Models;
 
 use Gecche\Cupparis\App\Breeze\Breeze;
 use Gecche\Cupparis\App\Models\UploadableTraits;
@@ -10,9 +9,8 @@ use Illuminate\Support\Facades\Config;
 /**
  * Breeze (Eloquent) model for T_AREA table.
  */
-class Importazione extends \Modules\CupChart\Models\Importazione
+class Importazione extends Breeze
 {
-	use Relations\ImportazioneRelations;
 
 	use UploadableTraits;
 
@@ -40,8 +38,8 @@ class Importazione extends \Modules\CupChart\Models\Importazione
     public static $relationsData = [
 
         'tabelle' => [self::HAS_MANY, 'related' => \App\Models\ImportazioneTabella::class, 'foreignKey' => 'importazione_id'],
-        'menu' => [self::BELONGS_TO, 'related' =>  Menu::class, 'foreignKey' => 'menu_id'],
-        'fonte' => [self::BELONGS_TO, 'related' =>  Fonte::class, 'foreignKey' => 'fonte_id'],
+//        'menu' => [self::BELONGS_TO, 'related' =>  Menu::class, 'foreignKey' => 'menu_id'],
+//        'fonte' => [self::BELONGS_TO, 'related' =>  Fonte::class, 'foreignKey' => 'fonte_id'],
 //        'belongsto' => array(self::BELONGS_TO, Area::class, 'foreignKey' => '<FOREIGNKEYNAME>'),
 //        'belongstomany' => array(self::BELONGS_TO_MANY, Area::class, 'table' => '<TABLEPIVOTNAME>','pivotKeys' => [],'foreignKey' => '<FOREIGNKEYNAME>','otherKey' => '<OTHERKEYNAME>') ,
 //        'hasmany' => array(self::HAS_MANY, Area::class, 'table' => '<TABLENAME>','foreignKey' => '<FOREIGNKEYNAME>'),

@@ -1,6 +1,4 @@
-<?php
-
-namespace App\Models;
+<?php namespace Modules\CupChart\Models;
 
 use App\Services\Importazione\RenderTableService;
 use Gecche\Cupparis\App\Breeze\Breeze;
@@ -8,10 +6,8 @@ use Gecche\Cupparis\App\Breeze\Breeze;
 /**
  * Breeze (Eloquent) model for T_AREA table.
  */
-class ImportazioneTabella extends \Modules\CupChart\Models\ImportazioneTabella
+class ImportazioneTabella extends Breeze
 {
-	use Relations\ImportazioneTabellaRelations;
-
 
 //    use ModelWithUploadsTrait;
 

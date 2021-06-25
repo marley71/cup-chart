@@ -1,6 +1,11 @@
 @include('cup-chart-module.charts.vue-map')
 @include('cup-chart-module.charts.vue-chart')
 @include('cup-chart-module.charts.vue-table')
+
+<script src='/cup-chart-module/js/SchemaColori.js'></script>
+<script src='/cup-chart-module/js/GestioneMappa2.js'></script>
+<script src="/cup-chart-module/js/GestioneGrafici.js"></script>
+
 <script>
     jQuery(function () {
         jQuery('[cup-grafico]').each(function () {

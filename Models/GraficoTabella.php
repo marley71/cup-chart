@@ -1,6 +1,5 @@
-<?php
+<?php namespace Modules\CupChart\Models;
 
-namespace App\Models;
 
 use App\Services\Importazione\RenderTableService;
 use Gecche\Cupparis\App\Breeze\Breeze;
@@ -10,12 +9,8 @@ use Illuminate\Support\Facades\Log;
 /**
  * Breeze (Eloquent) model for T_AREA table.
  */
-class GraficoTabella extends \Modules\CupChart\Models\GraficoTabella
+class GraficoTabella extends Breeze
 {
-	use Relations\GraficoTabellaRelations;
-
-	//use Relations\ImportazioneTabellaRelations;
-
 
 //    use ModelWithUploadsTrait;
 

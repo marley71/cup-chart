@@ -1,6 +1,5 @@
-<?php
+<?php namespace Modules\CupChart\Foorm\Importazione\Actions;
 
-namespace App\Foorm\Importazione\Actions;
 
 
 use Gecche\Foorm\FoormAction;
@@ -9,7 +8,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
-class ElasticJson extends \Modules\CupChart\Foorm\Importazione\Actions\ElasticJson
+class SplitTables extends FoormAction
 {
 
     protected $fieldToSet;
@@ -21,7 +20,7 @@ class ElasticJson extends \Modules\CupChart\Foorm\Importazione\Actions\ElasticJs
     public function performAction()
     {
 
-        Artisan::call('crea-importazione-json',['id' => $this->model->getKey()]);
+        Artisan::call('manage-importazione',['id' => $this->model->getKey()]);
 
         $this->actionResult = [];
 

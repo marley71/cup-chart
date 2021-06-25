@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
-class SplitTables extends FoormAction
+class SplitTables extends \Modules\CupChart\Foorm\Importazione\Actions\SplitTables
 {
 
     protected $fieldToSet;

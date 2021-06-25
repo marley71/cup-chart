@@ -1,6 +1,4 @@
-<?php
-
-namespace App\Foorm\Importazione;
+<?php  namespace Modules\CupChart\Foorm\Importazione;
 
 
 use App\Models\GraficoTabella;
@@ -12,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
-class FoormInsert extends \Modules\CupChart\Foorm\Importazione\FoormInsert
+class FoormInsert extends BaseFoormInsert
 {
 
     protected $fileId;
