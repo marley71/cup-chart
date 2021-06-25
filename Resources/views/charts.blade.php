@@ -1,6 +1,6 @@
-@include('cup-chart-module.charts.vue-map')
-@include('cup-chart-module.charts.vue-chart')
-@include('cup-chart-module.charts.vue-table')
+@include('modules.cup-chart.charts.vue-map')
+@include('modules.cup-chart.charts.vue-chart')
+@include('modules.cup-chart.charts.vue-table')
 
 <script src='/cup-chart-module/js/SchemaColori.js'></script>
 <script src='/cup-chart-module/js/GestioneMappa2.js'></script>
