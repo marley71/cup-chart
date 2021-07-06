@@ -35,6 +35,6 @@ Route::post('/chart-export', 'ChartController@export')->name('chart-export');
 //    Route::get("cup-site-admin", 'CupSiteController@admin')->name('cup_site_admin');
 //});
 
-Route::prefix('cupsite')->group(function() {
-    Route::get('/', 'CupSiteController@index');
-});
+//Route::prefix('cupsite')->group(function() {
+//    Route::get('/', 'CupSiteController@index');
+//});

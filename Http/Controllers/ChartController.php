@@ -8,6 +8,7 @@ use App\Services\ChartData;
 use App\Services\ElasticSearch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Response;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xls;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -314,5 +315,16 @@ class ChartController extends Controller
         header('Content-Disposition: attachment;filename="'. $filename .'.xls"'); /*-- $filename is  xsl filename ---*/
         header('Cache-Control: max-age=0');
         $Excel_writer->save('php://output');
+    }
+
+    protected function _error($msg)
+    {
+        $this->json['error'] = 1;
+        $this->json['msg'] = $msg;
+    }
+
+    protected function _json()
+    {
+        return Response::json($this->json);
     }
 }
