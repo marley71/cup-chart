@@ -180,6 +180,9 @@ class SplitStrictTablesService
                     $headers = $this->getTableHeaders($currentSheet, $initColumn, $initRow, $headersColumns,
                         $headersRows, $finalColumnIndex, $finalRow);
 
+                    $extra = $this->guessTableExtra($currentSheet, $column, $row, $finalColumn, $previousFinalRow,
+                        $nTables);
+
                     //In STRICT MODE DEVONO ESSERE PARI SIA LE RIGHE CHE LE COLONNE DELLE INTESTAZIONI
                     // (NOME_SERIE:VALORI)
                     if ($headersRows % 2 !== 0
@@ -204,6 +207,7 @@ class SplitStrictTablesService
                         'headers' => $headers,
                         'series' => $series,
                         'inferredSeries' => $series,
+                        'extra' => $extra
                     ];
 
 
@@ -230,6 +234,82 @@ class SplitStrictTablesService
         }
 
         return $nTables;
+    }
+
+    protected function guessTableExtra(
+        Worksheet $sheet,
+       $metadataColumn,
+       $metadataRow,
+       $finalColumn,
+       $previousFinalRow,
+       $nTables)
+    {
+        // check che la riga successiva alla fine tabella deve essere vuota, poi cerco una delle parole chiavi
+        // che mi aspetto finchè non trovo una riga vuota
+        $row = $previousFinalRow+1;
+        $letter = $metadataColumn;
+        $coordinate = $letter . $row;
+        $sheet->getCell($coordinate);
+        $extra = [
+            'note' => [],
+            'tipo_valore' => 'numero',
+            'suffisso' => '',
+            'prefisso' => ''
+        ];
+        if ($sheet->getCell($coordinate)->getCalculatedValue()) {
+            // non c'e' la riga vuota
+            return $extra;
+        }
+        $row+=1;
+        $finito = false;
+        while (!$finito) {
+            $letter = $metadataColumn;
+            //$coordinate = $letter.$row;
+            $key = strtolower($sheet->getCell($metadataColumn.$row)->getCalculatedValue());
+            if (!$key) {
+                $finito = true;
+                continue;
+            }
+            switch ($key) {
+                case 'note':
+                    do {
+                        $letter++;
+                        //$coordinate = $letter.$row;
+                        $val = $sheet->getCell($letter.$row)->getCalculatedValue();
+                        if ($val)
+                            $extra['note'][] = $val;
+                    } while($val);
+                    break;
+                case 'tipo_valore':
+                    // TODO aggiungere eventuale formato nella colonna b
+                    $letter++;
+                    //$coordinate = $letter.$row;
+                    $val = $sheet->getCell($letter.$row)->getCalculatedValue();
+                    $extra['tipo_valore'] = $val;
+                    break;
+                case 'prefisso':
+                    $letter++;
+                    //$coordinate = $letter.$row;
+                    $val = $sheet->getCell($letter.$row)->getCalculatedValue();
+                    $extra['prefisso'] = $val;
+                    break;
+                case 'suffisso':
+                    $letter++;
+                    //$coordinate = $letter.$row;
+                    $val = $sheet->getCell($letter.$row)->getCalculatedValue();
+                    $extra['suffisso'] = $val;
+                    break;
+                default:
+                    Log::notice("$key - key non trovata ");
+                    $letter++;
+                    //$coordinate = $letter.$row;
+                    $val = $sheet->getCell($letter.$row)->getCalculatedValue();
+                    $extra[$key] = $val;
+                    break;
+            }
+            $row++;
+        }
+        return $extra;
     }
 
     protected function guessTableTitle(

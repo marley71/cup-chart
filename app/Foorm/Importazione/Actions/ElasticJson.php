@@ -12,27 +12,5 @@ use Illuminate\Support\Str;
 class ElasticJson extends \Modules\CupChart\Foorm\Importazione\Actions\ElasticJson
 {
 
-    protected $fieldToSet;
-    protected $valueToSet;
-
-    protected $validationSettings;
-
-
-    public function performAction()
-    {
-
-        Artisan::call('crea-importazione-json',['id' => $this->model->getKey()]);
-
-        $this->actionResult = [];
-
-        return $this->actionResult;
-
-    }
-
-    public function validateAction()
-    {
-        return true;
-    }
-
 
 }

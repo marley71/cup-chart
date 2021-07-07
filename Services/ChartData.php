@@ -45,7 +45,9 @@ class ChartData
                 return $this->_chartData();
             throw new \Exception($type . ' type non gestito');
         } catch (\Exception $e) {
+            Log::error($e->getTraceAsString());
             throw new \Exception($e->getMessage() . " " . $e->getFile() . ":" . $e->getLine());
+
         }
 
     }
@@ -112,6 +114,7 @@ class ChartData
         $result['leftSeries'] =$leftSeries;
         $result['topSeries'] =$topSeries;
         $result['separatoreLeft'] = $separtoreLeft;
+        $result['extra'] = Arr::get($this->data,'extra',[]);
         //$result['min'] = 0;
         //$result['max'] = 100;
 
@@ -201,7 +204,7 @@ class ChartData
         if (array_key_exists('comune',$leftSeries)) {
             $mode = 'comuni';
             $mapKey = 'comune';
-            $this->_comuniIstat($leftSeries[$mapKey]['values']);
+            $mapIstat = $this->_comuniIstat($leftSeries[$mapKey]['values']);
         } else if (array_key_exists('regione',$leftSeries)) {
             $mode = 'regioni';
             $mapKey = 'regione';
@@ -241,7 +244,7 @@ class ChartData
                     case 'regioni':
                     case 'nazioni':
                     case 'province':
-                        if ($mapIstat[$luogo])  {
+                        if (Arr::get($mapIstat,$luogo))  {
                             $regioneIstat = $mapIstat[$luogo];
                             $seriesValues[$subKey][] = $floatValue;
                             //$min = ($min>$floatValue)?$floatValue:$min;
@@ -254,6 +257,8 @@ class ChartData
                                 ];
                             }
                             $values[$subKey][$luogo]['total'] += $floatValue;
+                        } else {
+                            Log::notice("ChartData luogo non trovato $luogo modalita $mode");
                         }
                         break;
                 }
@@ -262,6 +267,7 @@ class ChartData
             }
         }
         $result['range'] = [];
+        //Log::info(print_r($seriesValues,true));
         foreach ($seriesValues as $key => $val) {
             sort($seriesValues[$key]);
             $step = floor(count($seriesValues[$key]) / 4.0);

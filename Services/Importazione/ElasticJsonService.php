@@ -110,6 +110,7 @@ class ElasticJsonService
             'columns' => $totalColumns,
             'rows' => $totalRows,
             'series' => $series,
+            'extra' => Arr::get($metadata,'extra',[])
         ];
 
         $this->objectReader->setLoadSheetsOnly([$sheetName]);

@@ -131,7 +131,11 @@
 
                     function __drawVisualization() {
                         // Some raw data (not necessarily accurate)
-                        console.log('graphicData',graphicData)
+
+                        var leftSeries = json.result.leftSeries;
+                        var leftKeys = Object.keys(leftSeries);
+                        var topSeries = json.result.topSeries;
+                        console.log(topSeries,leftSeries,'graphicData',graphicData)
                         var data = google.visualization.arrayToDataTable(graphicData);
 
 
@@ -155,20 +159,22 @@
                             'line' : 'ComboChart'
                         }
                         var chartType = that.chartType; //that.gChartType || 'ComboChart';
-                        var vAxis = 'Percentuale'
-                        var hAxis = json.result.measureName;
+                        var vAxis = json.result.extra.tipo_valore || 'numero';
+                        var hAxis = leftKeys[0] ;
                         var seriesType = 'bars';
 
                         switch (chartType) {
                             case 'chart-o':
-                                hAxis = 'Percentuale'
-                                vAxis = json.result.measureName;
+                                var tmp = vAxis;
+                                vAxis = hAxis;
+                                hAxis = tmp
                                 break;
                             case 'line':
                                 seriesType = 'line'
                                 break;
                         }
                         console.log('google chart type ',googleChartType[chartType],seriesType)
+                        console.log('hAixs',hAxis,'vAx',vAxis);
                         var options = {
                             title: title,
                             vAxis: {
@@ -194,6 +200,22 @@
                         var chart = new google.visualization[googleChartType[chartType]](domContainer);
 
                         that.chart = chart;
+
+
+                        switch (json.result.extra.tipo_valore) {
+                            case 'percentuale':
+                            case 'numero':
+                                var formatter = new google.visualization.NumberFormat({
+                                    pattern: '0.0',
+                                    suffix: json.result.extra.suffisso,
+                                    prefix : json.result.extra.prefisso,
+                                });
+
+                                // format number columns
+                                for (var i = 1; i < data.getNumberOfColumns(); i++) {
+                                    formatter.format(data, i);
+                                }
+                        }
 
                         chart.draw(data, options);
 
