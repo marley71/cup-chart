@@ -1,5 +1,5 @@
 <template id="vue-map-template">
-    <div class="container d-flex flex-column min-h-75vh">
+    <div v-if="!loading" class="container d-flex flex-column min-h-75vh">
         <hr class="w-100 mb--20"/>
         <div class="row">
             <div class="col-12">
@@ -34,7 +34,7 @@
                             <div class="row">
                                 <template v-if="index==0">
                                     <span class="col-12 text-right">
-                                        minore di <b>@{{euroFormat(legend[index+1])}}</b>
+                                        minore di <b>@{{valueFormat(legend[index+1])}}</b>
                                         <span class="pl--2">
                                             <span class="w--15 h--15 d-inline-block" :style="'background-color:'+gMap.layoutProperties[index].bgColor"></span>
 {{--                                            <i class="fi fi-shape-abstract-dots" :style="'color:'+gMap.layoutProperties[index].bgColor"></i>--}}
@@ -46,8 +46,8 @@
                                     <span class="col-12 text-right" >
 
                                     <span class="pb-1">
-                                    da <b>@{{euroFormat(filter)}}</b>
-                                        a <b>@{{euroFormat(legend[index+1])}}</b></span>
+                                    da <b>@{{valueFormat(filter)}}</b>
+                                        a <b>@{{valueFormat(legend[index+1])}}</b></span>
                                         <span class="pl--2">
                                             <span class="w--15 h--15 d-inline-block" :style="'background-color:'+gMap.layoutProperties[index].bgColor"></span>
 {{--                                            <i class="fi fi-shape-abstract-dots border-black" :style="'color:'+gMap.layoutProperties[index].bgColor"></i>--}}
@@ -58,7 +58,7 @@
                                     <span class="col-12 text-right" >
 
 
-                                    maggiore di <b>@{{euroFormat(filter)}}</b>
+                                    maggiore di <b>@{{valueFormat(filter)}}</b>
                                         <span class="pl--2">
                                             <span class="w--15 h--15 d-inline-block" :style="'background-color:'+gMap.layoutProperties[index].bgColor"></span>
 
@@ -184,11 +184,14 @@
                 // that.gMap.center = [
                 //     14,
                 //     42.29];
+                that.loading = false;
+                setTimeout(function () {
+                    that.gMap.showMap();
+                    that.gMap.map.on('load', () => {
+                        that.load();
+                    })
+                },100)
 
-                that.gMap.showMap();
-                that.gMap.map.on('load', () => {
-                    that.load();
-                })
             },
             data() {
                 console.log('dati esterni',data);
@@ -197,6 +200,7 @@
                     d[k] = data[k];
                 }
                 var defaultData =  {
+                    loading: true,
                     type : 'map',
                     comuni: [],
                     filters : data.filters || {},
@@ -318,7 +322,8 @@
                     that.filters[target.name] = target.value;
                     that.load();
                 },
-                euroFormat(value,decimal) {
+                valueFormat(value) {
+                    return this.gMap.valueFormat(value);
                     return value;
                     return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' ,minimumFractionDigits: 0}).format(Math.floor(value))
                 }

@@ -302,6 +302,7 @@ class ChartData
         //$result['step'] = $step;
         $result['leftSeries'] =$leftSeries;
         $result['topSeries'] =$topSeries;
+        $result['extra'] = Arr::get($this->data,'extra',[]);
         return $result;
     }
 

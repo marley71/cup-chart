@@ -91,6 +91,7 @@ var commonMap = {
         var that = this;
         that.removePopups();
         that.data = data;
+        that.suffissoValore = data.extra.suffisso;
         var keys = Object.keys(data.values);
         var selected = currentKey?currentKey:keys[0];
         console.log('keys',keys,selected,data.values)
@@ -105,6 +106,7 @@ var commonMap = {
                 opacity : 1,
             };
         }
+
 
         that.layoutProperties = layoutProperties;
         //console.log('range',that.layoutProperties);
@@ -136,7 +138,7 @@ var commonMap = {
                             index = ii;
                     }
                     geojson.features[js].properties.distretto = that.range[selected][index]; //Math.floor(Math.random() * 10);
-                    geojson.features[js].properties.total = total + " " + that.suffissoValore; //that.euroFormat(total);
+                    geojson.features[js].properties.total = that.valueFormat(total); //that.euroFormat(total);
                     geojson.features[js].properties.layoutProperties = layoutProperties[that.range[selected][index] ];
                     geojson.features[js].properties.labelValore = that.labelValore;
                 }
@@ -255,7 +257,19 @@ var commonMap = {
     },
     euroFormat(value,decimal) {
         return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' ,minimumFractionDigits: 0}).format(Math.floor(value))
+    },
+    valueFormat(value) {
+        var that = this;
+        var val = value;
+        switch (that.data.extra.tipo_valore) {
+            case 'numero':
+            case 'percentuale':
+                val =  value.toFixed(2);
+                break;
+        }
+        return val + ' ' + that.data.extra.suffisso;
     }
+
 }
 
 // -- Gestione Mappa Regioni -----
@@ -622,6 +636,10 @@ GestioneMappaComuni.caricaDistribuzione = function (name,data,currentKey) {
     var that = this;
     that.removePopups();
     that.data = data;
+    console.log('extra',data.extra);
+    that.suffissoValore = data.extra.suffisso;
+
+
     var keys = Object.keys(data.values);
     var selected = currentKey?currentKey:keys[0];
     console.log('keys',keys,selected,data.values)
@@ -668,7 +686,7 @@ GestioneMappaComuni.caricaDistribuzione = function (name,data,currentKey) {
                         index = ii;
                 }
                 geojson.features[js].properties.distretto = that.range[selected][index]; //Math.floor(Math.random() * 10);
-                geojson.features[js].properties.total = total + " " + that.suffissoValore; //that.euroFormat(total);
+                geojson.features[js].properties.total = that.valueFormat(total); //that.euroFormat(total);
                 geojson.features[js].properties.layoutProperties = layoutProperties[that.range[selected][index] ];
                 geojson.features[js].properties.labelValore = that.labelValore;
             }
