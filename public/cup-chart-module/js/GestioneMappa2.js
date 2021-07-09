@@ -1,5 +1,6 @@
 var commonMap = {
     id : 'map',
+    mapStyle: 'mapbox://styles/mapbox/satellite-v9',
     map : null,
     mode : 'regioni',
     accessToken : null,
@@ -20,6 +21,7 @@ var commonMap = {
     fieldId : '',  // nome utilizzato nelle properties  per i test nei layers,
     popups: [], // vettore delle popups create per poterle rimuovere quando cambiano i dati
     sources : [],
+    opacity : 1,
 
     init(callback) {
         var that = this;
@@ -53,7 +55,7 @@ var commonMap = {
         mapboxgl.accessToken = that.accessToken; //'pk.eyJ1IjoiY2l1bGxvIiwiYSI6ImNra3dteXB6azI4YW0zMHFuMzgzaDI3NnAifQ.xTToI9E2YbuletQYFOTbcQ';
         that.map = new mapboxgl.Map({
             container: that.id,
-            style: 'mapbox://styles/mapbox/dark-v10',
+            style: that.mapStyle,
             center : that.center,
             zoom : that.zoom,
             //zoomOffset: 0,
@@ -103,7 +105,7 @@ var commonMap = {
         for (var c in colors) {
             layoutProperties[c] =  {
                 bgColor : colors[c],
-                opacity : 1,
+                opacity : that.opacity,
             };
         }
 
@@ -651,7 +653,7 @@ GestioneMappaComuni.caricaDistribuzione = function (name,data,currentKey) {
     for (var c in colors) {
         layoutProperties[c] =  {
             bgColor : colors[c],
-            opacity : 1,
+            opacity : that.opacity,
         };
     }
 

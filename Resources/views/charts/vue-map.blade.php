@@ -22,7 +22,21 @@
                         <div :id="map_id" class="h--600 w-100 rounded">
 
                         </div>
-
+                        <div>
+                            <label>Stile mappa</label>
+                            <input map-style  type="radio" name="rtoggle" value="mapbox://styles/mapbox/satellite-v9">
+                            <!-- See a list of Mapbox-hosted public styles at -->
+                            <!-- https://docs.mapbox.com/api/maps/styles/#mapbox-styles -->
+                            <label for="satellite-v9">satellite</label>
+                            <input map-style  type="radio" name="rtoggle" value="mapbox://styles/mapbox/light-v10">
+                            <label for="light-v10">light</label>
+                            <input map-style  type="radio" name="rtoggle" value="mapbox://styles/mapbox/dark-v10">
+                            <label for="dark-v10">dark</label>
+                            <input map-style  type="radio" name="rtoggle" value="mapbox://styles/mapbox/streets-v11">
+                            <label for="streets-v11">streets</label>
+                            <input map-style type="radio" name="rtoggle" value="mapbox://styles/mapbox/outdoors-v11">
+                            <label for="outdoors-v11">outdoors</label>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -156,7 +170,7 @@
         //console.log('conatiner',container);//jQuery(container).length,jQuery(container).html())
         jQuery(container).attr('id',id);
 
-        vMap =new Vue({
+        var vMap =new Vue({
             el : '#'+id,
             template : '#vue-map-template',
             mounted() {
@@ -181,11 +195,27 @@
                 that.gMap.slots = [];
                 that.gMap.tipologie = [];
                 that.gMap.tipologieGioco = [];
+                that.gMap.opacity = .8;
                 // that.gMap.center = [
                 //     14,
                 //     42.29];
                 that.loading = false;
                 setTimeout(function () {
+                    jQuery(that.$el).find('[map-style][value="' + that.gMap.mapStyle + '"]').prop('checked',true);
+                    console.log('found default check',jQuery(that.$el).find('[map-style][val="' + that.gMap.mapStyle + '"]').length,that.gMap.mapStyle)
+                    jQuery(that.$el).find('[map-style]').click(function () {
+                        console.log('map style',jQuery(this).val());
+                        var style = jQuery(this).val();
+                        console.log('style',style)
+                        that.gMap.mapStyle = style;
+                        that.gMap.zoom = that.gMap.map.getZoom();
+                        that.gMap.center = that.gMap.map.getCenter();
+                        that.gMap.showMap();
+                        that.gMap.map.on('load', () => {
+                            that.load();
+                        })
+                        //that.load();
+                    })
                     that.gMap.showMap();
                     that.gMap.map.on('load', () => {
                         that.load();
