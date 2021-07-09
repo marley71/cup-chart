@@ -281,23 +281,13 @@ class SplitStrictTablesService
                     } while($val);
                     break;
                 case 'tipo_valore':
+                case 'suffisso':
+                case 'prefisso':
                     // TODO aggiungere eventuale formato nella colonna b
                     $letter++;
                     //$coordinate = $letter.$row;
                     $val = $sheet->getCell($letter.$row)->getCalculatedValue();
-                    $extra['tipo_valore'] = $val;
-                    break;
-                case 'prefisso':
-                    $letter++;
-                    //$coordinate = $letter.$row;
-                    $val = $sheet->getCell($letter.$row)->getCalculatedValue();
-                    $extra['prefisso'] = $val;
-                    break;
-                case 'suffisso':
-                    $letter++;
-                    //$coordinate = $letter.$row;
-                    $val = $sheet->getCell($letter.$row)->getCalculatedValue();
-                    $extra['suffisso'] = $val;
+                    $extra[$key] = $val;
                     break;
                 default:
                     Log::notice("$key - key non trovata ");
@@ -573,7 +563,7 @@ class SplitStrictTablesService
             $namesSeries = $series[$names];
             $valuesSeries = $series[$values];
 
-            $nameValues = array_values($namesSeries['values']);
+            $nameValues = array_map('trim',array_map('strtolower',array_values($namesSeries['values'])));
             if (count($nameValues) !== 1) {
                 throw new \Exception("Le serie con i nomi devono avere un unico valore distinto\n" . print_r($nameValues,true));
             }
@@ -633,6 +623,7 @@ class SplitStrictTablesService
 
             $guessedName = Arr::get($guessedNames,$i);
             $serie['name'] = $guessedName ?: $serie['name'];
+            $serie['name'] = strtolower(trim($serie['name']));
 
 
             $namedSeries[] = $serie;
