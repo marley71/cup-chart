@@ -65,10 +65,10 @@ class ChartData
         $cartesian = $this->_getSeries($topSeries);
         $cartesianAll = $this->_getSeries($topSeries,true);
 
-        $rowKeys = $leftSeries[array_keys($series['left'])[0]]['values'];
-        $rowIndexKeys = array_keys($rowKeys);
+//        $rowKeys = $leftSeries[array_keys($series['left'])[0]]['values'];
+//        $rowIndexKeys = array_keys($rowKeys);
         $values = [];
-        $separtoreLeft = config('grafici.separatore_left');
+        $separtoreLeft = config('cupparis-chart.separatore_left');
         foreach ($this->data['values'] as $item) {
 
             if (!$this->_matchFilter($item))
@@ -266,21 +266,22 @@ class ChartData
 
             }
         }
-        $result['range'] = [];
-        //Log::info(print_r($seriesValues,true));
-        foreach ($seriesValues as $key => $val) {
-            sort($seriesValues[$key]);
-            $step = floor(count($seriesValues[$key]) / 4.0);
-            $result['range'][$key] = [];
-            for ($i=0;$i<4;$i++) {
-                // TODO controllare il calcolo del range non funziona bene con valori ripetutti troppe volte
-    //            if ($i>0 &&
-    //                ($seriesValues[$i*$step]  == $seriesValues[($i-1) * $step]) )
-    //                continue;
-                $result['range'][$key][] = $seriesValues[$key][$i*$step];
-            }
-        }
+//        $result['range'] = [];
+//        //Log::info(print_r($seriesValues,true));
+//        foreach ($seriesValues as $key => $val) {
+//            sort($seriesValues[$key]);
+//            $step = floor(count($seriesValues[$key]) / 4.0);
+//            $result['range'][$key] = [];
+//            for ($i=0;$i<4;$i++) {
+//                // TODO controllare il calcolo del range non funziona bene con valori ripetutti troppe volte
+//    //            if ($i>0 &&
+//    //                ($seriesValues[$i*$step]  == $seriesValues[($i-1) * $step]) )
+//    //                continue;
+//                $result['range'][$key][] = $seriesValues[$key][$i*$step];
+//            }
+//        }
 
+        $result['range'] = $this->_calcolaIntervalli($seriesValues);
 
 //        sort($seriesValues);
 //        $step = floor(count($seriesValues) / 4.0);
@@ -520,5 +521,35 @@ class ChartData
         }
 
         return $result;
+    }
+
+    protected function _calcolaIntervalli($seriesValues) {
+        $interval = [];
+
+        foreach ($seriesValues as $key => $val) {
+            $valid = array_unique($seriesValues[$key]);
+            sort($valid);
+            $lun = count($valid);
+            if ($lun <4) {
+                $min = $valid[0];
+                $mins = [];
+                for ($i=0;$i<4-$lun;$i++) {
+                    $mins[] = $min;
+                }
+                $interval[$key] = array_merge($mins,$valid);
+            } else {
+                $step = floor(count($valid) / 4.0);
+                $interval[$key] = [];
+                for ($i=0;$i<4;$i++) {
+                    // TODO controllare il calcolo del range non funziona bene con valori ripetutti troppe volte
+                    //            if ($i>0 &&
+                    //                ($seriesValues[$i*$step]  == $seriesValues[($i-1) * $step]) )
+                    //                continue;
+                    $interval[$key][] = $valid[$i*$step];
+                }
+            }
+
+        }
+        return $interval;
     }
 }

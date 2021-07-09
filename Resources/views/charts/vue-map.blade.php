@@ -284,7 +284,7 @@
                     jQuery.get('/distribuzione/'+that.resourceId+'/'+that.resourceType,{filters : that.filters,series:that.series},function (json) {
                         console.log('distribuzione json',json);
                         if (json.error) {
-                            console.log('errore',json.message);
+                            console.error('errore',json.msg);
                             return ;
                         }
                         that.json = json;

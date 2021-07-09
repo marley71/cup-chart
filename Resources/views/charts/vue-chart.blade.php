@@ -121,7 +121,8 @@
                     graphicData.push([''].concat(keys));
                     var keyValues = Object.keys(json.result.values[keys[0]]);
                     for (var kv=0;kv<keyValues.length;kv++) {
-                        graphicData.push([keyValues[kv]]);
+                        graphicData.push(that._getLeftValues(keyValues[kv]))
+                        //graphicData.push([keyValues[kv]]);
                         for (var k in json.result.values) {
                             graphicData[kv+1].push(parseFloat(json.result.values[k][keyValues[kv]].total));
                         }
@@ -237,7 +238,7 @@
                     console.log('load distribuzione filters',that.filters,'series',that.series);
                     jQuery.get('/distribuzione/'+that.resourceId+'/'+that.resourceType,{filters : that.filters,series:that.series},function (json) {
                         if (json.error) {
-                            console.log('errore',json.msg);
+                            console.error('errore',json.msg);
                             return ;
                         }
                         that.json = json;
@@ -281,6 +282,21 @@
                     that.series[serieName] = target.value;
                     that.load();
                 },
+                /**
+                 * in caso la tabella excel ha piu' di una serie left va splittato il valore usando il separatoreLeft
+                 * @param compactValue
+                 * @return {*[]|*}
+                 * @private
+                 */
+                _getLeftValues(compactValue) {
+                    var that = this;
+                    var tmp= compactValue.split(that.json.result.separatoreLeft);
+                    var val = "";
+                    for (var i in tmp) {
+                        val += tmp[i] + ' ';
+                    }
+                    return [val];
+                }
             }
         })
         return vChart;

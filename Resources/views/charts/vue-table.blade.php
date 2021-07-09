@@ -1,5 +1,5 @@
 <template id="vue-table-template">
-    <div class="container d-flex flex-column min-h-75vh">
+    <div v-if="!loading" class="container d-flex flex-column min-h-75vh">
         <hr class="w-100 mb--20"/>
         <div class="row">
 
@@ -20,7 +20,9 @@
                             <table class=" rounded w-100">
                             </table>
                         </div>
-
+                    </div>
+                    <div class="col-12 pt--2" v-for="nota in getNote()">
+                        <i>@{{nota}}</i>
                     </div>
                 </div>
             </div>
@@ -74,7 +76,13 @@
             template : '#vue-table-template',
             mounted() {
                 var that = this;
-                that.load();
+                that.load(function () {
+                    that.loading = false;
+                    setTimeout(function () {
+                        that.showTable();
+                    },200)
+
+                });
             },
             data() {
                 var d = {}
@@ -91,10 +99,17 @@
                     context : {},
                     seriesContext : {},
                     primaVolta : true,
+                    loading:true,
                 }
                 return Object.assign(d,defaultData);
             },
             methods : {
+                getNote() {
+                    if (this.json.result) {
+                        return this.json.result.extra.note;
+                    }
+                    return [];
+                },
                 imageData() {
                     return null; //this.gMap.map.getCanvas().toDataURL();
                 },
@@ -111,6 +126,7 @@
                         for (var k in values[ keys[i] ]) {
                             //console.log('k',k,values[ keys[i] ])
                             if (!graphicData[rowCount]) {
+                                //console.log('getleftvalues',that._getLeftValues(k))
                                 graphicData.push(that._getLeftValues(k))
                             }
                             graphicData[rowCount].push(parseFloat(parseFloat(values[ keys[i] ][k]['total']).toFixed(2)))
@@ -133,6 +149,7 @@
                         if (keys[i] == 'totale')
                             columns[columns.length-1].orderable = true;
                     }
+
                     jQuery('#'+that.chart_id).find('table').DataTable( {
                         paging : false,
                         data: graphicData,
@@ -159,7 +176,7 @@
                     //jQuery('caption').html(that.json.result.description);
                     return ;
                 },
-                load() {
+                load(callback) {
                     var that = this;
                     //
                     // var contextValue = {};
@@ -170,7 +187,7 @@
                     console.log('filters',that.filters,'series',that.series);
                     jQuery.get('/distribuzione/'+that.resourceId+'/'+that.resourceType,{filters : that.filters,series:that.series},function (json) {
                         if (json.error) {
-                            console.log('errore',json.message);
+                            console.error('errore',json.msg);
                             return ;
                         }
                         that.json = json;
@@ -188,10 +205,11 @@
                                 for (var k in ctx) {
                                     jQuery('[name="' + k +'"').val(ctx[k].value);
                                 }
+                                return callback();
                             },500)
 
-                        }
-                        that.showTable();
+                        } else
+                            return callback();
                     }).fail(function (e) {
                         console.error(e);
                     })
@@ -202,7 +220,9 @@
                     console.log('name',target.name,target.value);
                     //that.context[target.name] = target.value;
                     that.filters[target.name] = target.value;
-                    that.load();
+                    that.load(function () {
+                        that.showTable();
+                    });
                 },
                 changeMisura(event) {
                     var that = this;
@@ -210,7 +230,9 @@
                     console.log('serie name',target.name,target.value);
                     //that.context[target.name] = target.value;
                     that.series[target.name] = target.value;
-                    that.load();
+                    that.load(function () {
+                        that.showTable();
+                    });
                 },
                 /**
                  * in caso la tabella excel ha piu' di una serie left va splittato il valore usando il separatoreLeft
