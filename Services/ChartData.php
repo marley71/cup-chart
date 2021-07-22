@@ -316,20 +316,37 @@ class ChartData
         $this->filtersContext = [];
         foreach ($queryParams as $key => $query) {
             $filterValues =  $this->data['series'][$key]['values'];
-            if ($query == '*') { // il filtro e' tutto quindi i valori verranno sommati come se non fosse definito
+            if (substr($query,0,1) == "*") {
                 $filterValues['*'] = 'Tutti ';
                 $this->filtersContext[$key] = [
                     'value' => '*',
                     'domainValues' => $filterValues
                 ];
+                if ($query == '*') { // il filtro e' tutto quindi i valori verranno sommati come se non fosse definito
+                    ;
+                }
+                if (substr($query,0,2) == "*-") {
+                    $selectValue = substr($query,2);
+                    $this->filters[$key] = $selectValue;
+                }
                 continue;
             }
-            if ($query == '?') {// i valori del filtro non possono essere sommato prendo il primo valore valido del filtro
-                $this->filtersContext[$key] = [
-                    'value' => array_keys($filterValues)[0],
-                    'domainValues' => $filterValues
-                ];
-                $this->filters[$key] = $filterValues[array_keys($filterValues)[0]];
+            if (substr($query,0,1) == "?") {
+                if ($query == '?') {// i valori del filtro non possono essere sommato prendo il primo valore valido del filtro
+                    $this->filtersContext[$key] = [
+                        'value' => array_keys($filterValues)[0],
+                        'domainValues' => $filterValues
+                    ];
+                    $this->filters[$key] = $filterValues[array_keys($filterValues)[0]];
+                }
+                if (substr($query,0,2) == "?-") {
+                    $selectValue = substr($query,2);
+                    $this->filtersContext[$key] = [
+                        'value' => $selectValue,
+                        'domainValues' => $filterValues
+                    ];
+                    $this->filters[$key] = $selectValue;
+                }
             } else {
                 $this->filters[$key] = $query;
             }
@@ -342,31 +359,50 @@ class ChartData
         $this->seriesContext = [];
         foreach ($queryParams as $key => $query) {
             $filterValues =  $this->data['series'][$key]['values'];
-            if ($query == '*') { // il filtro e' tutto quindi i valori verranno sommati come se non fosse definito
-                // nel caso di mappa il concetto di visualizza tutti non ha senso, si mostra un solo valore per volta
-                if ($isMap) {
-                    // prendo la serie e lo imposto al primo valore del dominio
+            if (substr($query,0,1) == "*") {
+                if ($query == '*') { // il filtro e' tutto quindi i valori verranno sommati come se non fosse definito
+                    // nel caso di mappa il concetto di visualizza tutti non ha senso, si mostra un solo valore per volta
+                    if ($isMap) {
+                        // prendo la serie e lo imposto al primo valore del dominio
+                        $this->seriesContext[$key] = [
+                            'value' => array_keys($filterValues)[0],
+                            'domainValues' => $filterValues
+                        ];
+                        $this->series[$key] = $filterValues[array_keys($filterValues)[0]];
+                    } else {
+                        $filterValues['*'] = 'Tutti ';
+                        $this->seriesContext[$key] = [
+                            'value' => '*',
+                            'domainValues' => $filterValues
+                        ];
+                    }
+                }
+                if (substr($query,0,2) == "*-") {
+                    $selectValue = substr($query,2);
+                    $this->filters[$key] = $selectValue;
+                    $this->seriesContext[$key] = [
+                        'value' => $selectValue,
+                        'domainValues' => $filterValues
+                    ];
+                }
+                continue;
+            }
+            if (substr($query,0,1) == "?") {
+                if ($query == '?') {// i valori del filtro non possono essere sommate prendo il primo valore valido del filtro
                     $this->seriesContext[$key] = [
                         'value' => array_keys($filterValues)[0],
                         'domainValues' => $filterValues
                     ];
                     $this->series[$key] = $filterValues[array_keys($filterValues)[0]];
-                } else {
-                    $filterValues['*'] = 'Tutti ';
-                    $this->seriesContext[$key] = [
-                        'value' => '*',
+                }
+                if (substr($query,0,2) == "?-") {
+                    $selectValue = substr($query,2);
+                    $this->filtersContext[$key] = [
+                        'value' => $selectValue,
                         'domainValues' => $filterValues
                     ];
+                    $this->filters[$key] = $selectValue;
                 }
-
-                continue;
-            }
-            if ($query == '?') {// i valori del filtro non possono essere sommate prendo il primo valore valido del filtro
-                $this->seriesContext[$key] = [
-                    'value' => array_keys($filterValues)[0],
-                    'domainValues' => $filterValues
-                ];
-                $this->series[$key] = $filterValues[array_keys($filterValues)[0]];
             } else {
                 $this->series[$key] = $query;
             }
@@ -551,5 +587,9 @@ class ChartData
 
         }
         return $interval;
+    }
+
+    private function _getValidFilterValue($query,$filters) {
+
     }
 }
