@@ -4,6 +4,12 @@
     "description": "Pacchetto per la gestione di grafici e dati importati da excel",
     "keywords": ["laravel", "cupparis"],
     "license": "MIT",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "http://github.com/gecche/geo-shapes"
+        }
+    ],
     "authors": [
         {
             "name": "Pier Paolo Ciullo",
