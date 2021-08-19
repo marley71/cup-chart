@@ -17,6 +17,7 @@ class CreateGraficiTabelleTable extends Migration
             $table->increments('id');
             $table->text('nome')->nullable();
             $table->text('html');
+            $table->text('attributes');
             $table->integer('importazione_tabelle_id')->unsigned()->index()->nullable()->default(null);// varchar(4) DEFAULT NULL,
             $table->foreign('importazione_tabelle_id')->references('id')->on('importazioni_tabelle')
                 ->onDelete('cascade')->onUpdate('cascade');
