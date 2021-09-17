@@ -105,7 +105,9 @@
                     seriesContext : {},
                     primaVolta : true,
                 }
-                return Object.assign(d,defaultData);
+                var mergedData = Object.assign(defaultData,d);
+                console.log('mergedData',mergedData)
+                return mergedData;
             },
             methods : {
                 imageData() {
@@ -117,7 +119,7 @@
                     console.log('JSON CHART',json);
                     var graphicData = [];
                     var keys = Object.keys(json.result.values);
-                    var title = json.result.description;
+                    var title = that.titolo?that.titolo:json.result.description;
                     graphicData.push([''].concat(keys));
                     var keyValues = Object.keys(json.result.values[keys[0]]);
                     for (var kv=0;kv<keyValues.length;kv++) {

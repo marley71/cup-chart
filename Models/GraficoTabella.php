@@ -77,57 +77,57 @@ class GraficoTabella extends Breeze
         switch ($menu_id) {
             default:
                 foreach ($impTabelle as $tabella) {
-                    $mDot = Arr::dot(json_decode($tabella->metadata,true));
-                    $cupGrafico= $tabella->elastic_id;
-                    $cupColors= "default";
-                    $cupChartType="chart";
+                    $mDot = Arr::dot(json_decode($tabella->metadata, true));
+                    $cupGrafico = $tabella->elastic_id;
+                    $cupColors = "default";
+                    $cupChartType = "chart";
                     $cupType = 'chart';
                     $cupFilters = '';
-                    $cupSeries= '';
-                    $cupTitle=$tabella->nome;
+                    $cupSeries = '';
+                    $cupTitle = $tabella->nome;
                     //print_r($mDot);
                     $stop = false;
                     // series automatiche
-                    $i=0;
+                    $i = 0;
                     Log::info("$cupGrafico\n----analizzo series---");
-                    while(!$stop) {
-                        $topName = strtolower(Arr::get($mDot,"inferredSeries.top.$i.name"));
+                    while (!$stop) {
+                        $topName = strtolower(Arr::get($mDot, "inferredSeries.top.$i.name"));
                         if (!$topName) {
                             $stop = true;
                             continue;
                         }
-                        if (array_search($topName,['sesso','eta','sostanza','detenuti','nazionalita']) !== FALSE) {
-                            $cupSeries .= ($cupSeries?',':'') . $topName. ':*';
+                        if (array_search($topName, ['sesso', 'eta', 'sostanza', 'detenuti', 'nazionalita']) !== FALSE) {
+                            $cupSeries .= ($cupSeries ? ',' : '') . $topName . ':*';
                         }
                         $i++;
                     }
                     // filters automatici
-                    $i=0;
+                    $i = 0;
                     $stop = false;
                     Log::info("----analizzo filters----");
-                    while(!$stop) {
-                        $leftName = strtolower(Arr::get($mDot,"inferredSeries.left.$i.name"));
+                    while (!$stop) {
+                        $leftName = strtolower(Arr::get($mDot, "inferredSeries.left.$i.name"));
                         if (!$leftName) {
                             $stop = true;
                             continue;
                         }
                         if ($leftName == 'comune') {
-                            $cupType='map';
+                            $cupType = 'map';
                             $cupChartType = 'comuni';
                             $cupColors = 'gradiente_blu';
                             Log::info("trovato comune");
                         } else if ($leftName == 'provincia') {
-                            $cupType='map';
+                            $cupType = 'map';
                             $cupChartType = 'province';
                             $cupColors = 'gradiente_blu';
                             Log::info("trovata regione");
                         } else if ($leftName == 'regione') {
-                            $cupType='map';
+                            $cupType = 'map';
                             $cupChartType = 'regioni';
                             $cupColors = 'gradiente_blu';
                             Log::info("trovata regione");
-                        }  else if ($leftName == 'nazione') {
-                            $cupType='map';
+                        } else if ($leftName == 'nazione') {
+                            $cupType = 'map';
                             $cupChartType = 'nazioni';
                             $cupColors = 'gradiente_blu';
                             Log::info("trovata regione");
@@ -165,5 +165,15 @@ class GraficoTabella extends Breeze
                 }
                 break;
         }
+    }
+
+    public static function getHtml ($params) {
+        if (!Arr::exists($params,'cup-titolo'))
+            $params['cup-titolo'] = '';
+        $html = '<div class="' . $params['cup-class'] . '" cup-type="' . $params['cup-type']  .
+            '" cup-grafico="' . $params['cup-grafico'] . '" cup-colors="' . $params['cup-colors'] .
+            '" cup-chart-type="' . $params['cup-chart-type'] . '" cup-filters="' . $params['cup-filters'] .
+            '" cup-series="' . $params['cup-series'] . '" cup-titolo="' . $params['cup-titolo'] . '"></div>';
+        return $html;
     }
 }
