@@ -33,7 +33,10 @@ var GestioneGrafici = {
             htmlElement : element,
             filters : context,
             series: serieContext,
-            titolo:jQuery(element).attr('cup-titolo')
+            //titolo:jQuery(element).attr('cup-titolo')
+        }
+        if (jQuery(element)[0].hasAttribute('cup-titolo')) {
+            params.titolo = jQuery(element).attr('cup-titolo');
         }
         return params;
     },

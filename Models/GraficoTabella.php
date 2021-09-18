@@ -162,7 +162,7 @@ class GraficoTabella extends Breeze
                         $i++;
                     }
                     $attributes = [
-                        'class' => 'chart-preview',
+                        'cup-class' => 'chart-preview',
                         'cup-type' => $cupType,
                         'cup-grafico' => $cupGrafico,
                         'cup-colors' => $cupColors,
@@ -171,23 +171,26 @@ class GraficoTabella extends Breeze
                         'cup-series' => $cupSeries,
                         'cup-titolo' => $cupTitle
                     ];
-                    $html = "<div class=\"chart-preview\" cup-type=\"$cupType\" cup-grafico=\"$cupGrafico\"
-                                cup-colors=\"$cupColors\" cup-chart-type=\"$cupChartType\"
-                                 cup-filters=\"$cupFilters\" cup-series=\"$cupSeries\" cup-titolo=\"$cupTitle\">
-                            </div>";
+                    $html = self::getHtml($attributes);
+//                    $html = "<div class=\"chart-preview\" cup-type=\"$cupType\" cup-grafico=\"$cupGrafico\"
+//                                cup-colors=\"$cupColors\" cup-chart-type=\"$cupChartType\"
+//                                 cup-filters=\"$cupFilters\" cup-series=\"$cupSeries\" cup-titolo=\"$cupTitle\">
+//                            </div>";
                     \App\Models\GraficoTabella::create([
                         'nome' => $cupGrafico,
                         'html' => $html,
                         'attributes' => json_encode($attributes),
                         'importazione_tabelle_id' => $tabella->getKey()
                     ]);
+                    // aggiungo tabella dati
                     $attributes['class'] = "table-preview";
                     $attributes['cup-type'] = 'table';
-                    // aggiungo tabella dati
-                    $html = "<div class=\"table-preview\" cup-type=\"table\" cup-grafico=\"$cupGrafico\"
-                                cup-colors=\"$cupColors\" cup-chart-type=\"$cupChartType\"
-                                 cup-filters=\"$cupFilters\" cup-series=\"$cupSeries\" cup-titolo=\"$cupTitle\">
-                            </div>";
+                    $html = self::getHtml($attributes);
+
+//                    $html = "<div class=\"table-preview\" cup-type=\"table\" cup-grafico=\"$cupGrafico\"
+//                                cup-colors=\"$cupColors\" cup-chart-type=\"$cupChartType\"
+//                                 cup-filters=\"$cupFilters\" cup-series=\"$cupSeries\" cup-titolo=\"$cupTitle\">
+//                            </div>";
                     \App\Models\GraficoTabella::create([
                         'nome' => $cupGrafico,
                         'html' => $html,

@@ -2,9 +2,9 @@
     <div v-if="!loading" class="container d-flex flex-column min-h-75vh">
         <hr class="w-100 mb--20"/>
         <div class="row">
-            <div class="col-12">
-                <h4>@{{ description }}</h4>
-            </div>
+{{--            <div class="col-12">--}}
+{{--                <h4>@{{ description }}</h4>--}}
+{{--            </div>--}}
 
             <div class="col-12 col-lg-9 mb-3">
                 <div class="row" v-if="Object.keys(context).length > 0">
@@ -327,7 +327,7 @@
                         that.json = json;
                         if (that.primaVolta) {
                             //jQuery.extend( true,that.context , (that.json.result.context || {}),true);
-                            that.description = that.titolo?that.titolo:that.json.result.description;
+                            that.description = ('titolo' in that)?that.titolo:that.json.result.description;
                             // if (that.titolo)
                             // that.description = that.json.result.description;
                             that.context = that.json.result.context || {};

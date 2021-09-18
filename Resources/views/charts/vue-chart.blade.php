@@ -2,9 +2,9 @@
     <div class="container d-flex flex-column min-h-75vh">
         <hr class="w-100 mb--20"/>
         <div class="row">
-            <div class="col-12">
-                <h4>@{{ description }}</h4>
-            </div>
+{{--            <div class="col-12">--}}
+{{--                <h4>@{{ description }}</h4>--}}
+{{--            </div>--}}
             <div class="col-12 col-lg-9 mb-3">
                 <div class="row" v-if="Object.keys(context).length > 0">
                     <div class="col-6" v-for="(ctx,key) in context">
@@ -119,7 +119,7 @@
                     console.log('JSON CHART',json);
                     var graphicData = [];
                     var keys = Object.keys(json.result.values);
-                    var title = that.titolo?that.titolo:json.result.description;
+                    var title = ('titolo' in that)?that.titolo:json.result.description;
                     graphicData.push([''].concat(keys));
                     var keyValues = Object.keys(json.result.values[keys[0]]);
                     for (var kv=0;kv<keyValues.length;kv++) {
