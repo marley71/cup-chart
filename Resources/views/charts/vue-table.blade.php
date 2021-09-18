@@ -101,7 +101,9 @@
                     primaVolta : true,
                     loading:true,
                 }
-                return Object.assign(d,defaultData);
+                var mergedData = Object.assign(defaultData,d);
+                console.log('mergedData',mergedData)
+                return mergedData;
             },
             methods : {
                 getNote() {

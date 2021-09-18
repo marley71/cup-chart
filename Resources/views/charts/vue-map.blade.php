@@ -200,10 +200,12 @@
                 //     14,
                 //     42.29];
                 that.loading = false;
+                // lo faccio per poter agganciare l'evento e devo essere sicuro che html e' stato disegnato
                 setTimeout(function () {
                     jQuery(that.$el).find('[map-style][value="' + that.gMap.mapStyle + '"]').prop('checked',true);
                     console.log('found default check',jQuery(that.$el).find('[map-style][val="' + that.gMap.mapStyle + '"]').length,that.gMap.mapStyle)
                     jQuery(that.$el).find('[map-style]').click(function () {
+                        jQuery('body').addClass('loading');
                         console.log('map style',jQuery(this).val());
                         var style = jQuery(this).val();
                         console.log('style',style)
@@ -216,6 +218,7 @@
                         })
                         //that.load();
                     })
+                    jQuery('body').addClass('loading');
                     that.gMap.showMap();
                     that.gMap.map.on('load', () => {
                         that.load();
@@ -248,7 +251,10 @@
                     labelValore : 'Numero',
                     selectedSerie : null,
                 }
-                return Object.assign(d,defaultData);
+                var mergedData = Object.assign(defaultData,d);
+                console.log('mergedData',mergedData)
+                return mergedData;
+                //return Object.assign(d,defaultData);
             },
             methods : {
                 imageData() {
@@ -266,9 +272,9 @@
                     this.gMap.toggleComune(comune)
                 },
                 changeMisura(event) {
-                    var that = this;
 
                     var that = this;
+                    jQuery('body').addClass('loading');
                     var target = event.target;
                     var serieName = jQuery(event.target).attr('serie-name');
                     console.log('serie name',serieName,target.value);
@@ -300,6 +306,7 @@
                         console.log('json',that.name,that.json);
                         that.gMap.caricaDistribuzione(that.resourceId,that.json.result);
                         that.legend = that.gMap.range[Object.keys(that.gMap.range)[0]]; //Object.keys(that.gMap.layoutProperties);
+                        jQuery('body').removeClass('loading');
                     });
                 },
                 load() {
@@ -350,6 +357,7 @@
                     console.log('name',target.name,target.value);
                     //that.context[target.name] = target.value;
                     that.filters[target.name] = target.value;
+                    jQuery('body').addClass('loading');
                     that.load();
                 },
                 valueFormat(value) {

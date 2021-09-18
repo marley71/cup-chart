@@ -245,7 +245,7 @@
                         }
                         that.json = json;
                         if (that.primaVolta) {
-                            that.description = that.json.result.description;
+                            that.description = that.titolo?that.titolo:that.json.result.description;
                             //jQuery.extend( true,that.context , (that.json.result.context || {}),true);
                             that.context = that.json.result.context || {};
                             that.seriesContext =  json.result.seriesContext || {}; //Object.keys(that.json.result.values);
