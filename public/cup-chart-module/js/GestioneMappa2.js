@@ -22,6 +22,7 @@ var commonMap = {
     popups: [], // vettore delle popups create per poterle rimuovere quando cambiano i dati
     sources : [],
     opacity : 1,
+    allFeatures: [],
 
     init(callback) {
         var that = this;
@@ -30,14 +31,16 @@ var commonMap = {
             that.map.removeLayer(layerId);
         }
         that.layers = {};
+
         jQuery('body').off('popup-created');
         jQuery('body').on('popup-created',function (event,popup) {
             //console.log('popup create',popup);
             that.popups.push(popup);
         })
         that.caricaMapJson(function () {
-            if (callback)
+            if (callback) {
                 return callback();
+            }
         });
 
     },
@@ -91,6 +94,7 @@ var commonMap = {
 
     caricaDistribuzione(name,data,currentKey) {
         var that = this;
+        that.allFeatures = [];
         that.removePopups();
         that.data = data;
         that.suffissoValore = data.extra.suffisso;
@@ -194,6 +198,7 @@ var commonMap = {
         //}
         console.log('layers',that.layers)
         console.log('features',geojson.features)
+        that.allFeatures = geojson.features;
         that.map.getSource(that.sourceName).setData(geojson);
 
     },
@@ -265,13 +270,107 @@ var commonMap = {
         var val = value;
         switch (that.data.extra.tipo_valore) {
             case 'numero':
+                val = Number(value).toLocaleString("it-IT", {minimumFractionDigits: 2,maximumFractionDigits:2});
+                break;
             case 'percentuale':
                 val =  value.toFixed(2);
                 break;
         }
-        return val + ' ' + that.data.extra.suffisso;
-    }
+        var formatted = that.data.extra.prefisso?that.data.extra.prefisso+' ':'';
+        formatted += (that.data.extra.suffisso?val+ ' ' + that.data.extra.suffisso:val);
+        return formatted;
+        //return that.data.extra.suffisso val + ' ' + that.data.extra.suffisso;
+    },
 
+    fitMapBound() {
+        var that = this;
+        var coordinates = [];
+        var features = that.allFeatures;
+        setTimeout(function () {
+            //console.log('features',features);
+            for (var i=0;features.length;i++) {
+                //console.log('aaa',features[i])
+                if (features[i]) {
+                    var cord = features[i].geometry.coordinates[0];
+                    for (var c in cord) {
+                        if (Array.isArray(cord[c][0])) {
+                            for (var j in cord[c]) {
+                                coordinates.push([
+                                    cord[c][j][0],
+                                    cord[c][j][1],
+                                ])
+                            }
+                        } else {
+                            coordinates.push([
+                                cord[c][0],
+                                cord[c][1]
+                            ])
+                        }
+
+                    }
+                } else
+                    break;
+
+
+            }
+            //console.log('coordinate fit',coordinates);
+            that.findBoundingBoxForGivenLocations(coordinates);
+        },100);
+
+    },
+
+    findBoundingBoxForGivenLocations (coordinates) {
+        var that = this;
+        var west = 0.0;
+        var east = 0.0;
+        var north = 0.0;
+        var south = 0.0;
+
+        for (var lc = 0; lc < coordinates.length; lc++) {
+            var tmp = coordinates[lc];
+            var loc = new mapboxgl.LngLat(tmp[0],tmp[1]);
+            if (lc == 0) {
+                north = loc.lat;
+                south = loc.lat;
+                west = loc.lng;
+                east = loc.lng;
+            }
+            else
+            {
+                if (loc.lat > north)
+                {
+                    north = loc.lat;
+                }
+                else if (loc.lat < south)
+                {
+                    south = loc.lat;
+                }
+                if (loc.lng < west)
+                {
+                    west = loc.lng;
+                }
+                else if (loc.lng > east)
+                {
+                    east = loc.lng;
+                }
+            }
+        }
+
+        // OPTIONAL - Add some extra "padding" for better map display
+        var padding = 0.01;
+        north = north + padding;
+        south = south - padding;
+        west = west - padding;
+        east = east + padding;
+        console.log(west,north,east,south);
+        var sup = new mapboxgl.LngLat(west,north);
+        var giu = new mapboxgl.LngLat(east,south);
+
+        //var llb = new mapboxgl.LngLatBounds(sw, ne);
+        var llb = new mapboxgl.LngLatBounds(sup, giu);
+        that.map.fitBounds(llb);
+        //return new BoundingBox(north, east, south, west);
+    }
 }
 
 // -- Gestione Mappa Regioni -----
@@ -327,6 +426,9 @@ GestioneMappaRegioni.caricaMapJson = function (callback) {
             that.layers[layerId] = layerId;
         }
         that.placesKey = keys;
+        that.allFeatures = geojson.features;
+        that.fitMapBound();
+        //that.fitMapBound();
         return callback();
     });
 };
@@ -413,6 +515,9 @@ GestioneMappaProvince.caricaMapJson = function (callback) {
             that.layers[layerId] = layerId;
         }
         that.placesKey = keys;
+        that.allFeatures = geojson.features;
+        that.fitMapBound();
+        //that.fitMapBound();
         return callback();
     });
 };
@@ -529,6 +634,9 @@ GestioneMappaNazioni.caricaMapJson = function (callback) {
             that.layers[layerId] = layerId;
         }
         that.placesKey = keys;
+        that.allFeatures = geojson.features;
+        that.fitMapBound();
+        //that.fitMapBound();
         return callback();
     });
 }
@@ -550,15 +658,11 @@ GestioneMappaComuni.regioni_ids = [{
 
 GestioneMappaComuni.caricaMapJson = function (callback) {
     var that = this;
-    // var map = that.map;
-    // //var lastLayer = '';
-    // var keys = Object.keys(that.comuni);
-    // if (that.map.getSource(keys[0])) {
-    //     return callback();
-    // }
     var keys = that.regioni_ids;
+    console.log('regioni ids',that.regioni_ids);
     var __caricaComuni = function (i) {
         var regioneId = that.regioni_ids[i].id;
+        // se e' gia' stata caricata non carico piu' la sorgente
         if (that.map.getSource(that.sourceName + regioneId) ) {
             if ( (i +1) <keys.length)
                 __caricaComuni(i+1);
@@ -595,10 +699,17 @@ GestioneMappaComuni.caricaMapJson = function (callback) {
                 //filter : ['==', 'distretto', r]
             });
             that.layers[layerId] = layerId;
-            if ( (i +1) <keys.length)
-                __caricaComuni(i+1);
-            else
+            that.allFeatures = that.allFeatures.concat(geojson.features);
+            if ( (i +1) <keys.length) {
+                //console.log('mergion geojson feature',geojson.features);
+                __caricaComuni(i + 1);
+            }
+            else {
+                //console.log('allFeatures',that.allFeatures)
+                that.fitMapBound();
                 callback();
+            }
+
         });
 
     }
@@ -637,6 +748,7 @@ GestioneMappaComuni._createPopup = function (e) {
 GestioneMappaComuni.caricaDistribuzione = function (name,data,currentKey) {
     var that = this;
     that.removePopups();
+    //that.allFeatures = [];
     that.data = data;
     console.log('extra',data.extra);
     that.suffissoValore = data.extra.suffisso;
@@ -736,7 +848,9 @@ GestioneMappaComuni.caricaDistribuzione = function (name,data,currentKey) {
             });
         }
         console.log('layers',that.layers)
-        console.log('features',geojson.features)
+        //console.log('features',geojson.features)
+        that.allFeatures = that.allFeatures.concat(geojson.features);
+        //console.log('allfeatuares',that.allFeatures);
         that.map.getSource(that.sourceName + regioneId).setData(geojson);
     }
     console.log('RANGE SELEZIONATO',that.range[selected]);
@@ -772,389 +886,3 @@ GestioneMappaComuni.rimuoviDistribuzione = function (currentKey) {
         that.distribuzione = null;
     }
 };
-
-// var GestioneMappaComuni = {
-//     id : 'map',
-//     map : null,
-//     mode : 'regioni',
-//     accessToken : null,
-//     center : [14,42.4],
-//     luoghi_sensibili : [],
-//     luoghi_gioco : [],
-//     distribuzione : null,
-//     range : [0],
-//     maxRange : 1,
-//     distibuzioneLayers:[],
-//     macroTipologie :[],
-//     macroTipologieGioco : [],
-//     tipologie : [],
-//     tipologieGioco : [],
-//     layers : {},
-//     colors : {},
-//     zoom : 9,
-//     basePath : '/geo-shapes/italy/',
-//     icons : {
-//         'scuola' : '/abruzzo/demo.files/gmap_icons/college-15.png'//'/abruzzo/demo.files/gmap_icons/mapbox-icon.png'
-//     },
-//     // layoutProperties : {
-//     //     0: {
-//     //         bgColor : '#AAAAAA',
-//     //         opacity : 1,
-//     //     },
-//     // },
-//     layoutProperties : {},
-//     comuni :  {
-//         'aquila' : {
-//             bgColor : '#FFFFFF',
-//             geojson : {},
-//         },
-//         'chieti' : {
-//             bgColor : '#FFAA00',
-//             geojson : {},
-//         },
-//         'pescara' : {
-//             bgColor : '#0000FF',
-//             geojson : {},
-//         },
-//         'teramo' : {
-//             bgColor : '#00FF00',
-//             geojson : {},
-//         },
-//     },
-//     showMap() {
-//         var that = this;
-//         mapboxgl.accessToken = that.accessToken; //'pk.eyJ1IjoiY2l1bGxvIiwiYSI6ImNra3dteXB6azI4YW0zMHFuMzgzaDI3NnAifQ.xTToI9E2YbuletQYFOTbcQ';
-//         that.map = new mapboxgl.Map({
-//             container: that.id,
-//             style: 'mapbox://styles/mapbox/dark-v10',
-//             center : that.center,
-//             zoom : that.zoom,
-//
-//         });
-//         //that.p = new mapboxgl.geocoder();
-//     },
-//     init(callback) {
-//         var that = this;
-//         for (var layerId in that.layers) {
-//             that.map.removeLayer(layerId);
-//         }
-//         that.layers = {};
-//         if (that.mode == 'regioni') {
-//             that.caricaRegioni(function () {
-//                 if (callback)
-//                     return callback();
-//             });
-//         } else {
-//             that.caricaComuni(function () {
-//                 that.caricaIcons(function () {
-//                     if (callback)
-//                         return callback();
-//                 })
-//             });
-//         }
-//
-//
-//     },
-//
-//
-//
-//     toggleMacroTipologia(macro_id,gioco) {
-//         var that = this;
-//         var t = gioco?that.macroTipologieGioco:that.macroTipologie;
-//         var baseName = gioco?'luoghi_gioco_':'luoghi_sensibili_';
-//         //console.log('t',t)
-//         for (var i in t) {
-//             //console.log('id',t[i].id,macro_id)
-//             if (t[i].id == macro_id) {
-//                 for (var j in t[i].tipi) {
-//                     that.toggleLayer(baseName+t[i].tipi[j].id);
-//                 }
-//             }
-//         }
-//     },
-//     toggleLayer(clickedLayer) {
-//         var that = this;
-//         //var clickedLayer = 'luoghi_sensibili';
-//         var visibility = that.map.getLayoutProperty(clickedLayer, 'visibility');
-//         //console.log('visibile',visibility)
-//         // toggle layer visibility by changing the layout object's visibility property
-//         if (!visibility || visibility === 'visible') {
-//             that.map.setLayoutProperty(clickedLayer, 'visibility', 'none');
-//             this.className = '';
-//         } else {
-//             this.className = 'active';
-//             that.map.setLayoutProperty(clickedLayer, 'visibility', 'visible');
-//         }
-//     },
-//     toggleComune(comune) {
-//         var that = this;
-//         if (!that.distribuzione) {
-//             that.toggleLayer(comune);
-//             return ;
-//         }
-//
-//
-//         for (var i in that.range) {
-//             that.toggleLayer(that.distribuzione + "_" + comune+'_'+that.range[i]);
-//         }
-//     },
-//
-//     filterTipologia(layerId,values) {
-//         var that = this;
-//         that.map.setFilter(layerId,null);
-//         values = values.map(function (item) {return parseInt(item,10)});
-//         console.log('filterTipologia',layerId,values[0],values)
-//         var filter = ['in','tipo_id'].concat(values);
-//         console.log('filter',filter);
-//         that.map.setFilter(layerId,filter);
-//         // for (var i in values) {
-//         //     that.map.setFilter(layerId,['match','tipo_id',values[i]]);
-//         // }
-//
-//
-//     },
-//
-//     rimuoviDistribuzione() {
-//         var that = this;
-//         if (that.distribuzione) {
-//             if (that.mode == 'regioni') {
-//                 for(var regione in that.regioni) {
-//                     for (var ri in that.range) {
-//                         var r = that.range[ri];
-//                         var layerId = that.distribuzione + '_' + regione + "_" + r;
-//                         that.map.off('click',layerId,that._createPopup);
-//                         that.map.removeLayer(layerId);
-//                         delete that.layers[layerId];
-//                     }
-//                 }
-//             } else {
-//                 for(var comune in that.comuni) {
-//                     for (var ri in that.range) {
-//                         var r = that.range[ri];
-//                         var layerId = that.distribuzione + '_' + comune + "_" + r;
-//                         that.map.off('click',layerId,that._createPopup);
-//                         that.map.removeLayer(layerId);
-//                         delete that.layers[layerId];
-//
-//                     }
-//                 }
-//             }
-//
-//             //that.map.remove();
-//             that.distribuzione = null;
-//         }
-//     },
-//
-//     caricaDistribuzione(name,data,currentKey) {
-//         var that = this;
-//
-//         var keys = Object.keys(data.values);
-//         var selected = currentKey?currentKey:keys[0];
-//         console.log('keys',keys,selected,data.values)
-//         //calcolo intervalli
-//         var bgColor = '#AA2222';
-//         //var min = data.min;
-//         //var max = data.max;
-//         console.log('range2',that.range);
-//         //var range = [];
-//         var layoutProperties = {};
-//         //range = [min];
-//         //var colors = that._gradient('#FFFFFF','#eb9c2f',4);
-//         var colors = that.colors;
-//         console.log('colors',colors);
-//         for (var c in colors) {
-//             layoutProperties[c] =  {
-//                 bgColor : colors[c],
-//                 opacity : 1,
-//             };
-//         }
-//
-//         //that.range = range;
-//         that.layoutProperties = layoutProperties;
-//         //console.log('range',that.layoutProperties);
-//         that.distribuzione = name
-//
-//
-//
-//         if (that.mode == 'regioni') {
-//             //aggiorno la sorgente dati dei layer
-//             // for (var k in data.values[selected]) {
-//             //     var found = false;
-//             //     for (var js in geojson.features) {
-//             //         //console.log(k,regione);
-//             //         var regione = new String(geojson.features[js].properties.NOME_REG);
-//             //         if (k.toUpperCase() == regione) {
-//             //             console.log('trovata',k);
-//             //             found = k;
-//             //             break;
-//             //         }
-//             //     }
-//             //     if (found) {
-//             //
-//             //     } else {
-//             //         geojson.features[js].properties.total = that.range[0];
-//             //         geojson.features[js].properties.layoutProperties = layoutProperties[0];
-//             //     }
-//             // }
-//             // return ;
-//             var normalizzato = {};
-//             for (var k in data.values[selected]) {
-//                 normalizzato[k.toUpperCase()] = data.values[selected][k];
-//             }
-//
-//
-//             console.log('normalizzato',normalizzato);
-//             var geojson = that.regioni_geojson; // that.regioni[regione].geojson;
-//             for(var regione in that.regioni) {
-//
-//                 for (var js in geojson.features) {
-//                     var s = new String(geojson.features[js].properties.NOME_REG);
-//                     var cIstat = s.toUpperCase();
-//                     //console.log('cIstat',cIstat,geojson.features[js].properties.NOME_REG,normalizzato[cIstat])
-//                     if (!normalizzato[cIstat]) {
-//                         geojson.features[js].properties.total = that.range[0];
-//                         geojson.features[js].properties.layoutProperties = layoutProperties[0];
-//                     } else {
-//                         var total = normalizzato[cIstat].total;
-//                         var index = 0;
-//                         for (var ii in that.range) {
-//                             if (total >= that.range[ii])
-//                                 index = ii;
-//                         }
-//                         geojson.features[js].properties.distretto = that.range[index]; //Math.floor(Math.random() * 10);
-//                         geojson.features[js].properties.total = that.euroFormat(total);
-//                         geojson.features[js].properties.layoutProperties = layoutProperties[that.range[index] ];
-//                     }
-//
-//                 }
-//             }
-//             console.log('RANGE',that.range);
-//             // istanzio i layers
-//             for(var regione in that.regioni) {
-//                 for (var ri in that.range ) {
-//                     var r = that.range[ri];
-//                     //console.log('aggiungo layer',comune + "_" +r, layoutProperties[r]);
-//                     var layerId = name + '_' + regione + "_" + r;
-//                     //console.log(layerId,'add layer properties',layoutProperties[r])
-//                     that.map.addLayer({
-//                         'id': layerId,
-//                         'type': 'fill',
-//                         'source': 'regioni',
-//                         //'source-layer': 'countries_polygons',
-//                         // 'layout': {
-//                         //     'line-join': 'round',
-//                         //     'line-cap': 'round',
-//                         //     //'background' : '#FF0000'
-//                         // },
-//                         'paint': {
-//                             //'line-color': '#ff69b4',
-//                             //'line-width': 2,
-//                             'fill-color': layoutProperties[ri].bgColor,
-//                             'fill-opacity' : layoutProperties[ri].opacity,
-//                             'fill-outline-color': 'red'
-//                         },
-//                         filter : ['==', 'distretto', r]
-//                     });
-//                     that.layers[layerId] = layerId;
-//                     that.map.on('click', layerId, that._createPopup);
-//                     that.map.on('mouseenter', layerId, function () {
-//                         that.map.getCanvas().style.cursor = 'pointer';
-//                     });
-//
-// // Change it back to a pointer when it leaves.
-//                     that.map.on('mouseleave', layerId, function () {
-//                         that.map.getCanvas().style.cursor = '';
-//                     });
-//                 }
-//             }
-//             console.log('layers',that.layers)
-//             console.log('features',geojson.features)
-//             that.map.getSource('regioni').setData(geojson);
-//         } else {
-//             //aggiorno la sorgente dati dei layer
-//             for(var comune in that.comuni) {
-//                 var geojson = that.comuni[comune].geojson;
-//                 for (var js in geojson.features) {
-//                     var s = new String(geojson.features[js].properties.PRO_COM);
-//                     var cIstat = s.padStart(6,'0');
-//                     //console.log('cIstat',cIstat,geojson.features[js].properties)
-//                     if (!data.values[selected][cIstat]) {
-//                         geojson.features[js].properties.total = that.range[0];
-//                         geojson.features[js].properties.layoutProperties = layoutProperties[0];
-//                     } else {
-//                         var total = data.values[selected][cIstat].total;
-//                         var index = 0;
-//                         for (var ii in that.range) {
-//                             if (total >= that.range[ii])
-//                                 index = ii;
-//                         }
-//                         //
-//                         // var index=that.range.findIndex(function(number) {
-//                         //     //console.log('check ',number,total);
-//                         //     return number > total;
-//                         // });
-//                         // if (index < 0)
-//                         //     index = 4;
-//                         //console.log('total',total,'index',index,'range index',range[index],layoutProperties[range[index]])
-//                         geojson.features[js].properties.distretto = that.range[index]; //Math.floor(Math.random() * 10);
-//                         geojson.features[js].properties.total = that.euroFormat(total);
-//                         geojson.features[js].properties.layoutProperties = layoutProperties[that.range[index] ];
-//                     }
-//
-//                 }
-//             }
-//             for(var comune in that.comuni) {
-//                 that.map.getSource(comune).setData(that.comuni[comune].geojson);
-//             }
-//             var lastLayer = that.tipologieGioco.length?'luoghi_gioco_' + that.tipologieGioco[that.tipologieGioco.length-1].id:null;
-//
-//             console.log('RANGE',that.range);
-//             // istanzio i layers
-//             for(var comune in that.comuni) {
-//                 for (var ri in that.range ) {
-//                     var r = that.range[ri];
-//                     //console.log('aggiungo layer',comune + "_" +r, layoutProperties[r]);
-//                     var layerId = name + '_' + comune + "_" + r;
-//                     //console.log(layerId,'add layer properties',layoutProperties[r])
-//                     that.map.addLayer({
-//                         'id': layerId,
-//                         'type': 'fill',
-//                         'source': comune,
-//                         //'source-layer': 'countries_polygons',
-//                         // 'layout': {
-//                         //     'line-join': 'round',
-//                         //     'line-cap': 'round',
-//                         //     //'background' : '#FF0000'
-//                         // },
-//                         'paint': {
-//                             //'line-color': '#ff69b4',
-//                             //'line-width': 2,
-//                             'fill-color': layoutProperties[ri].bgColor,
-//                             'fill-opacity' : layoutProperties[ri].opacity,
-//                             'fill-outline-color': 'red'
-//                         },
-//                         filter : ['==', 'distretto', r]
-//                     },lastLayer);
-//                     that.layers[layerId] = layerId;
-//                     that.map.on('click', layerId, that._createPopup);
-//                     that.map.on('mouseenter', layerId, function () {
-//                         that.map.getCanvas().style.cursor = 'pointer';
-//                     });
-//
-// // Change it back to a pointer when it leaves.
-//                     that.map.on('mouseleave', layerId, function () {
-//                         that.map.getCanvas().style.cursor = '';
-//                     });
-//                 }
-//             }
-//         }
-//
-//
-//
-//
-//
-//     }
-// }
-
-
-

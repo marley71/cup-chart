@@ -2,9 +2,10 @@
     <div v-if="!loading" class="container d-flex flex-column min-h-75vh">
         <hr class="w-100 mb--20"/>
         <div class="row">
-            <div class="col-12">
-                <h4>@{{ description }}</h4>
-            </div>
+{{--            <div class="col-12">--}}
+{{--                <h4>@{{ description }}</h4>--}}
+{{--            </div>--}}
+
             <div class="col-12 col-lg-9 mb-3">
                 <div class="row" v-if="Object.keys(context).length > 0">
                     <div class="col-6" v-for="(ctx,key) in context">
@@ -361,8 +362,6 @@
                 },
                 valueFormat(value) {
                     return this.gMap.valueFormat(value);
-                    return value;
-                    return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' ,minimumFractionDigits: 0}).format(Math.floor(value))
                 }
             }
         })
