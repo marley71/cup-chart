@@ -70,6 +70,7 @@ class ChartData
         $values = [];
         $separtoreLeft = config('cupparis-chart.separatore_left');
         $maxValue = 0;
+        $minValue = 0;
         foreach ($this->data['values'] as $item) {
 
             if (!$this->_matchFilter($item))
@@ -85,6 +86,7 @@ class ChartData
 
                 $floatValue = floatval($item['value']);
                 $maxValue = $maxValue<$floatValue?$floatValue:$maxValue;
+                $minValue = $minValue>$floatValue?$floatValue:$minValue;
                 $rowLabel = [];
                 // TODO riformulare in base ai filtri sulle left...
                 foreach($leftSeries as $key => $lserie ) {
@@ -117,74 +119,12 @@ class ChartData
         $result['topSeries'] =$topSeries;
         $result['separatoreLeft'] = $separtoreLeft;
         $result['extra'] = Arr::get($this->data,'extra',[]);
-        //$result['min'] = 0;
+        $result['min'] = $minValue<0?$minValue:0;
         $result['max'] = $maxValue;
 
         return $result;
     }
 
-//    protected function _chartDataOld() {
-//        $result = [];
-//        $cols = $this->data['columns'];
-//        $rows = $this->data['rows'];
-//        $this->_setFilters();
-//        $this->_setSeries();
-//
-//        //valori colonne e il loro offset all'interno del vettore values
-//        $series = $this->_getKeys($this->data['series']);
-//        $topSeries = $series['top'];
-//        $leftSeries = $series['left'];
-//
-//
-//        $cartesian = $this->_getSeries($topSeries);
-//        $cartesianAll = $this->_getSeries($topSeries,true);
-//
-//        $rowKeys = $leftSeries[array_keys($series['left'])[0]]['values'];
-//        $rowIndexKeys = array_keys($rowKeys);
-//        $values = [];
-//        foreach ($cartesianAll as $index => $subKeys) {
-//            //$subKeys = $cartesian
-//            if (!$this->_matchSerie($subKeys,$cartesian))
-//                continue;
-//
-//            $subKey = implode(' ',$subKeys);
-//            $values[$subKey] = [];
-//
-//            for ($i=0;$i<$rows;$i++) {
-//                $v = $this->data['values'][$i+($index*$rows)];
-//                if (!$this->_matchFilter($v))
-//                    continue;
-//
-//
-//
-//                $floatValue = floatval($v['value']);
-//                //$codiceIstat = CupGeoComune::where('nome_it',$comune)->first();
-//                $rowLabel = $rowIndexKeys[$i];
-//
-//                if (!Arr::exists($values[$subKey],$rowLabel)) {
-//                    $values[$subKey][$rowLabel] = [
-//                        'label' => $subKey,
-//                        'total' => 0
-//                    ];
-//                }
-//                $values[$subKey][$rowLabel]['total'] += $floatValue;
-//
-//            }
-//        }
-//
-//        $ll = $series['left'][array_keys($series['left'])[0]];
-//        $result['measureName'] =  Arr::get($ll,'label','');
-//        $result['description'] = $this->data['titolo'];
-//        $result['values'] = $values;
-//        $result['context'] = $this->filtersContext;
-//        $result['seriesContext'] = $this->seriesContext;
-//        $result['leftSeries'] =$leftSeries;
-//        $result['topSeries'] =$topSeries;
-//        //$result['min'] = 0;
-//        //$result['max'] = 100;
-//
-//        return $result;
-//    }
 
     protected function _mapData() {
         $result = [];
