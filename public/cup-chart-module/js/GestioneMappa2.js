@@ -61,6 +61,7 @@ var commonMap = {
             style: that.mapStyle,
             center : that.center,
             zoom : that.zoom,
+            preserveDrawingBuffer: true
             //zoomOffset: 0,
             //minZoom : 0,
         });

@@ -115,9 +115,9 @@ class GraficoTabella extends Breeze
                             $stop = true;
                             continue;
                         }
-                        if (array_search($topName,self::$specialFilter) !== FALSE) {
+                        //if (array_search($topName,self::$specialFilter) !== FALSE) {
                             $cupSeries .= ($cupSeries?',':'') . $topName. ':*';
-                        }
+                        //}
                         $i++;
                     }
                     // filters automatici

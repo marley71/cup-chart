@@ -1,3 +1,19 @@
+<style type="text/css">
+    .map-title {
+        display: table;
+        position: relative;
+        margin: 0px auto;
+        word-wrap: anywhere;
+        white-space: pre-wrap;
+        padding: 10px;
+        border: none;
+        border-radius: 3px;
+        font-size: 12px;
+        text-align: center;
+        color: #222;
+        background: #fff;
+    }
+</style>
 <template id="vue-map-template">
     <div v-if="!loading" class="container d-flex flex-column min-h-75vh">
         <hr class="w-100 mb--20"/>
@@ -18,7 +34,7 @@
                 </div>
                 <div class="row">
                     <div class="col-12 bg-white shadow-primary-xs rounded p-0 mt-4 ">
-
+                        <div :id="title_id" class="d-none map-title">@{{ description }}</div>
                         <div :id="map_id" class="h--600 w-100 rounded">
 
                         </div>
@@ -191,10 +207,10 @@
                 that.gMap.accessToken = '{{ env('MAPBOX_KEY') }}';
                 that.gMap.id = that.map_id;
                 //that.gMap.zoom = 8;
-                that.gMap.scuole = [];
-                that.gMap.slots = [];
-                that.gMap.tipologie = [];
-                that.gMap.tipologieGioco = [];
+                // that.gMap.scuole = [];
+                // that.gMap.slots = [];
+                // that.gMap.tipologie = [];
+                // that.gMap.tipologieGioco = [];
                 that.gMap.opacity = .8;
                 // that.gMap.center = [
                 //     14,
@@ -222,6 +238,9 @@
                     that.gMap.showMap();
                     that.gMap.map.on('load', () => {
                         that.load();
+                        if (data.showTitle) {
+                            jQuery('#'+that.title_id).removeClass('d-none');
+                        }
                     })
                 },100)
 
@@ -241,6 +260,7 @@
                     json : {},
                     name : null,
                     map_id : id + '_map',
+                    title_id : 'id' + '_title',
                     gMap : null,
                     legend : [],
                     context : {},
@@ -306,6 +326,7 @@
                         console.log('json',that.name,that.json);
                         that.gMap.caricaDistribuzione(that.resourceId,that.json.result);
                         that.legend = that.gMap.range[Object.keys(that.gMap.range)[0]]; //Object.keys(that.gMap.layoutProperties);
+                        console.log('legeng',that.legend);
                         jQuery('body').removeClass('loading');
                     });
                 },

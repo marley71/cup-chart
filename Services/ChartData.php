@@ -69,6 +69,7 @@ class ChartData
 //        $rowIndexKeys = array_keys($rowKeys);
         $values = [];
         $separtoreLeft = config('cupparis-chart.separatore_left');
+        $maxValue = 0;
         foreach ($this->data['values'] as $item) {
 
             if (!$this->_matchFilter($item))
@@ -83,6 +84,7 @@ class ChartData
                 }
 
                 $floatValue = floatval($item['value']);
+                $maxValue = $maxValue<$floatValue?$floatValue:$maxValue;
                 $rowLabel = [];
                 // TODO riformulare in base ai filtri sulle left...
                 foreach($leftSeries as $key => $lserie ) {
@@ -116,7 +118,7 @@ class ChartData
         $result['separatoreLeft'] = $separtoreLeft;
         $result['extra'] = Arr::get($this->data,'extra',[]);
         //$result['min'] = 0;
-        //$result['max'] = 100;
+        $result['max'] = $maxValue;
 
         return $result;
     }

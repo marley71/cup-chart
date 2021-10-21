@@ -68,5 +68,19 @@ class ImportazioneTabella extends Breeze
         return $renderTableService->getHtmlFromMetadata();
     }
 
-
+    public function getChartData() {
+        $id = $this->elastic_id;
+        if (env('USE_ELASTIC')) {
+            $es = new ElasticSearch();
+            $data = $es->get([
+                'index' => env('ELASTIC_INDEX'),
+                'id' => $id
+            ]);
+            $data = $data['_source'];
+        } else {
+            $filename = storage_path('files/elastic/'.$this->importazione_id.'/'.$id.".json");
+            $data = json_decode(file_get_contents($filename),true);
+        }
+        return $data;
+    }
 }
