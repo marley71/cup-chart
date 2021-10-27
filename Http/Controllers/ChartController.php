@@ -265,6 +265,10 @@ class ChartController extends Controller
         }
         $filename = storage_path($folder . "/" . $name . "_$i.xlsx");
         $Excel_writer->save($filename);
+        $options = [
+            'filename' => $filename
+        ];
+        return $this->_outExcel($options,$Excel_writer);
     }
 
     protected function _zipFile($name,$folder) {
@@ -390,7 +394,7 @@ class ChartController extends Controller
 //
 //    }
 
-    protected function _saveImageinExcel($spreadsheet) {
+    protected function _saveImageinExcel($spreadsheet,$row,$col,$imgAttrs) {
         // sovrascrivere questo metodo per eventuali immagini da salvare nell'execel sotto un esempio
 
 //        $pr_file = "filename";
@@ -407,15 +411,15 @@ class ChartController extends Controller
 
     }
 
-//    private function _outExcel($options,$Excel_writer) {
-//        $filename = array_key_exists('filename',$options)?$options['filename']:'chart-data';
-//        $filename = $filename?$filename:$options['filename'];
-//        //die("filename $filename" . "\n");
-//        header('Content-Type: application/vnd.ms-excel');
-//        header('Content-Disposition: attachment;filename="'. $filename .'.xls"'); /*-- $filename is  xsl filename ---*/
-//        header('Cache-Control: max-age=0');
-//        $Excel_writer->save('php://output');
-//    }
+    protected function _outExcel($options,$Excel_writer) {
+        $filename = array_key_exists('filename',$options)?$options['filename']:'chart-data';
+        $filename = $filename?$filename:$options['filename'];
+        //die("filename $filename" . "\n");
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment;filename="'. $filename .'.xls"'); /*-- $filename is  xsl filename ---*/
+        header('Cache-Control: max-age=0');
+        $Excel_writer->save('php://output');
+    }
 
     protected function _error($msg)
     {
