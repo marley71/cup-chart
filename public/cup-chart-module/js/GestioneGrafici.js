@@ -33,6 +33,7 @@ var GestioneGrafici = {
             htmlElement : element,
             filters : context,
             series: serieContext,
+            confName: jQuery(element).attr('cup-conf')?jQuery(element).attr('cup-conf'):'',
             //titolo:jQuery(element).attr('cup-titolo')
         }
         if (jQuery(element)[0].hasAttribute('cup-titolo')) {

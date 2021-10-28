@@ -206,6 +206,7 @@
                     that.gMap = Object.create(GestioneMappaComuni);
                 that.gMap.accessToken = '{{ env('MAPBOX_KEY') }}';
                 that.gMap.id = that.map_id;
+                that.gMap.mapStyle = data.conf.mapStyle;
                 //that.gMap.zoom = 8;
                 // that.gMap.scuole = [];
                 // that.gMap.slots = [];

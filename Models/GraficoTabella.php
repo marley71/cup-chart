@@ -103,6 +103,7 @@ class GraficoTabella extends Breeze
                     $cupType = 'chart';
                     $cupFilters = '';
                     $cupSeries = '';
+                    $cupConf = '';
                     $cupTitle = $tabella->nome;
                     //print_r($mDot);
                     $stop = false;
@@ -161,6 +162,10 @@ class GraficoTabella extends Breeze
 //                        }
                         $i++;
                     }
+                    if ($cupType == 'map')
+                        $cupConf = 'mapConf';
+                    else
+                        $cupConf = 'chartConf';
                     $attributes = [
                         'cup-class' => 'chart-preview',
                         'cup-type' => $cupType,
@@ -169,7 +174,8 @@ class GraficoTabella extends Breeze
                         'cup-chart-type' => $cupChartType,
                         'cup-filters' => $cupFilters,
                         'cup-series' => $cupSeries,
-                        'cup-titolo' => $cupTitle
+                        'cup-titolo' => $cupTitle,
+                        'cup-conf' => $cupConf,
                     ];
                     $html = self::getHtml($attributes);
 //                    $html = "<div class=\"chart-preview\" cup-type=\"$cupType\" cup-grafico=\"$cupGrafico\"
@@ -208,7 +214,8 @@ class GraficoTabella extends Breeze
         $html = '<div class="' . $params['cup-class'] . '" cup-type="' . $params['cup-type']  .
             '" cup-grafico="' . $params['cup-grafico'] . '" cup-colors="' . $params['cup-colors'] .
             '" cup-chart-type="' . $params['cup-chart-type'] . '" cup-filters="' . $params['cup-filters'] .
-            '" cup-series="' . $params['cup-series'] . '" cup-titolo="' . $params['cup-titolo'] . '"></div>';
+            '" cup-series="' . $params['cup-series'] . '" cup-titolo="' . $params['cup-titolo'] .
+            '" cup-conf="' . $params['cup-conf'] . '"></div>';
         return $html;
     }
 }

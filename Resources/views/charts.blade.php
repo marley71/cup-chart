@@ -3,6 +3,8 @@
 @include('modules.cup-chart.charts.vue-table')
 
 <script src='/cup-chart-module/js/SchemaColori.js'></script>
+<script src="/cup-chart-module/js/GraficiConfs.js"></script>
+
 <script src='/cup-chart-module/js/GestioneMappa2.js'></script>
 <script src="/cup-chart-module/js/GestioneGrafici.js"></script>
 
@@ -19,6 +21,19 @@
         jQe.find('[cup-grafico]').each(function () {
             var gs = Object.create(GestioneGrafici);
             var params = gs.getParamsFromJquery(jQuery(this));
+            // aggiungo il parametro conf
+            var confName = window[params['confName']] || {};
+            var cupType = params['cup-type'];
+            // console.log('chartConf',chartConf);
+            var defaultConf = Object.create(chartConf);
+            if (cupType == 'map')
+                defaultConf = Object.create(mapConf);
+            params.conf = {};
+            params.conf = jQuery.extend(params.conf, defaultConf);
+            params.conf = jQuery.extend(params.conf, confName);
+            // console.log('paramsssssss',params);
+            // console.log('defaultConf',defaultConf);
+            // console.log('confsssssss',params.conf)
             var gf = gs.render(params);
             objs.push(gf);
         })
