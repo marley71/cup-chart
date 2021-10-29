@@ -298,6 +298,20 @@
                         val += tmp[i] + ' ';
                     }
                     return [val];
+                },
+                getSelectedSeries() {
+                    var that = this;
+                    // nei casi iniziali i valori presenti nelle serie potrebbero non corrispondere a quelli che si vedono in video
+                    var s = that.series || {};
+                    for (var k in that.series) {
+                        var value = that.series[k];
+                        if (value.substring(0,1) == '*' || value.substring(0,1) == '?') {
+                            s[k] = jQuery(that.$el).find('input[serie-name="' + k +'"]:checked').val()
+                        } else {
+                            s[k] = value;
+                        }
+                    }
+                    return s;
                 }
             }
         })
