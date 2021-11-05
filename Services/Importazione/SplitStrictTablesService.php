@@ -163,7 +163,7 @@ class SplitStrictTablesService
                     $finalColumnIndex = Coordinate::columnIndexFromString($finalColumn);
 
 
-                    $finalRow = $this->getFinalDataRow($currentSheet, $initRow, $initDataColumn, $finalColumn,
+                    $finalRow = $this->getFinalDataRow($currentSheet, $initRow, $initColumn, $finalColumn,
                         $totalRows);
                     //C'E' QUALCHE CASINO
                     Log::info("TABELLA TROVATA::: " . $coordinate . ' - FINAL COLUMN::: ' . $finalColumn . ' - FINAL ROW::: ' . $finalRow);
@@ -783,9 +783,9 @@ class SplitStrictTablesService
                         break;
                     }
                 }
-                if (!$hasValue) {
-                    $trovato = true;
-                }
+            }
+            if (!$hasValue) {
+                $trovato = true;
             }
 
             if (!$trovato) {
