@@ -661,7 +661,7 @@ class SplitStrictTablesService
                     $toBeSpanned = $colSpan - 1;
                 }
 
-                $lastValue = Arr::get($columnVal, 'val');
+                $lastValue = Arr::get($columnVal, 'fVal');
                 $topSerie['values'][$lastValue] = $lastValue;
                 $topSerie['valuesPerColumn'][$columnIndex] = $lastValue;
 
@@ -718,7 +718,7 @@ class SplitStrictTablesService
                     $toBeSpanned = $colSpan - 1;
                 }
 
-                $lastValue = Arr::get($rowVal, 'val');
+                $lastValue = Arr::get($rowVal, 'fVal');
                 $leftSerie['values'][$lastValue] = $lastValue;
                 $leftSerie['valuesPerRow'][$rowIndex] = $lastValue;
 
