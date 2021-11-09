@@ -13,6 +13,16 @@
         jQuery('[cup-grafico]').each(function () {
             var gs = Object.create(GestioneGrafici);
             var params = gs.getParamsFromJquery(jQuery(this));
+            // aggiungo il parametro conf
+            var conf = window[params['confName']] || {};
+            var cupType = params['cup-type'];
+            // console.log('chartConf',chartConf);
+            var defaultConf = Object.create(chartConf);
+            if (cupType == 'map')
+                defaultConf = Object.create(mapConf);
+            params.conf = {};
+            params.conf = jQuery.extend(params.conf, defaultConf);
+            params.conf = jQuery.extend(params.conf, conf);
             gs.render(params);
         })
     })
@@ -22,7 +32,7 @@
             var gs = Object.create(GestioneGrafici);
             var params = gs.getParamsFromJquery(jQuery(this));
             // aggiungo il parametro conf
-            var confName = window[params['confName']] || {};
+            var conf = window[params['confName']] || {};
             var cupType = params['cup-type'];
             // console.log('chartConf',chartConf);
             var defaultConf = Object.create(chartConf);
@@ -30,7 +40,7 @@
                 defaultConf = Object.create(mapConf);
             params.conf = {};
             params.conf = jQuery.extend(params.conf, defaultConf);
-            params.conf = jQuery.extend(params.conf, confName);
+            params.conf = jQuery.extend(params.conf, conf);
             // console.log('paramsssssss',params);
             // console.log('defaultConf',defaultConf);
             // console.log('confsssssss',params.conf)
