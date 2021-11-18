@@ -11,7 +11,7 @@ var commonMap = {
     colors : {},
     zoom : 4.9,
     basePath : '/geo-shapes/italy/',
-    labelValore : 'Numero',
+    labelValore : 'valore',
     suffissoValore : '',
     placesKey: [],
     layoutProperties : {},
@@ -269,12 +269,13 @@ var commonMap = {
     valueFormat(value) {
         var that = this;
         var val = value;
+        var decimali = that.data.extra.decimali;
         switch (that.data.extra.tipo_valore) {
-            case 'numero':
-                val = Number(value).toLocaleString("it-IT", {minimumFractionDigits: 2,maximumFractionDigits:2});
+            case 'valore':
+                val = Number(value).toLocaleString("it-IT", {minimumFractionDigits: decimali,maximumFractionDigits:decimali});
                 break;
             case 'percentuale':
-                val =  value.toFixed(2);
+                val =  value.toFixed(decimali);
                 break;
         }
         var formatted = that.data.extra.prefisso?that.data.extra.prefisso+' ':'';

@@ -269,7 +269,7 @@
                     primaVolta : true,
                     //series : [],
                     serie : null,
-                    labelValore : 'Numero',
+                    labelValore : 'valore',
                     selectedSerie : null,
                 }
                 var mergedData = Object.assign(defaultData,d);
@@ -357,6 +357,7 @@
                             //that.series = Object.keys(that.json.result.values);
                             //that.serie = that.series[0];
                             that.gMap.colors = schema_colori[that.schemaColor] || schema_colori['default'];
+                            that.gMap.labelValore = that.json.result.extra.tipo_valore
                             that.primaVolta = false;
                             //TODO da migliorare
                             setTimeout(function () {

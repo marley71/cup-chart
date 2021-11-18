@@ -120,8 +120,8 @@ class ChartData
         $result['separatoreLeft'] = $separtoreLeft;
         $result['extra'] = Arr::get($this->data,'extra',[]);
         $result['min'] = $minValue<0?$minValue:0;
-        $result['max'] = $maxValue;
-
+        $result['max'] = Arr::get($result['extra'],'tipo_valore',null) == 'percentuale'?100:$maxValue;
+        //$result['max'] = $maxValue;
         return $result;
     }
 

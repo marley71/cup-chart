@@ -162,7 +162,7 @@
                             'line' : 'ComboChart'
                         }
                         var chartType = that.chartType; //that.gChartType || 'ComboChart';
-                        var vAxis = json.result.extra.tipo_valore || 'numero';
+                        var vAxis = json.result.extra.tipo_valore;
                         var hAxis = leftKeys[0] ;
                         var seriesType = 'bars';
 
@@ -207,9 +207,13 @@
 
                         switch (json.result.extra.tipo_valore) {
                             case 'percentuale':
-                            case 'numero':
+                            case 'valore':
+                                var pattern = '0.0';
+                                if (json.result.extra.decimali === 0) {
+                                    pattern = '0'
+                                }
                                 var formatter = new google.visualization.NumberFormat({
-                                    pattern: '0.0',
+                                    pattern: pattern,
                                     suffix: json.result.extra.suffisso,
                                     prefix : json.result.extra.prefisso,
                                 });

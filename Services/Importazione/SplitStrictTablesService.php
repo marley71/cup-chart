@@ -252,9 +252,10 @@ class SplitStrictTablesService
         $sheet->getCell($coordinate);
         $extra = [
             'note' => [],
-            'tipo_valore' => 'numero',
+            'tipo_valore' => 'valore',
             'suffisso' => '',
-            'prefisso' => ''
+            'prefisso' => '',
+            'decimali' => 2,
         ];
         if ($sheet->getCell($coordinate)->getCalculatedValue()) {
             // non c'e' la riga vuota
@@ -283,6 +284,7 @@ class SplitStrictTablesService
                 case 'tipo_valore':
                 case 'suffisso':
                 case 'prefisso':
+                case 'decimali':
                     // TODO aggiungere eventuale formato nella colonna b
                     $letter++;
                     //$coordinate = $letter.$row;
