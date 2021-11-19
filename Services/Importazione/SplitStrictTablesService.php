@@ -22,6 +22,8 @@ use stringEncode\Exception;
 class SplitStrictTablesService
 {
 
+    use SpreadsheetTrait;
+
     protected $importazione;
     protected $objectReader;
     protected $dataFile;
@@ -257,7 +259,7 @@ class SplitStrictTablesService
             'prefisso' => '',
             'decimali' => 2,
         ];
-        if ($sheet->getCell($coordinate)->getCalculatedValue()) {
+        if ($this->getCalcValue($sheet->getCell($coordinate))) {
             // non c'e' la riga vuota
             return $extra;
         }
@@ -266,7 +268,7 @@ class SplitStrictTablesService
         while (!$finito) {
             $letter = $metadataColumn;
             //$coordinate = $letter.$row;
-            $key = strtolower($sheet->getCell($metadataColumn.$row)->getCalculatedValue());
+            $key = strtolower($this->getCalcValue($sheet->getCell($metadataColumn.$row)));
             if (!$key) {
                 $finito = true;
                 continue;
@@ -276,7 +278,7 @@ class SplitStrictTablesService
                     do {
                         $letter++;
                         //$coordinate = $letter.$row;
-                        $val = $sheet->getCell($letter.$row)->getCalculatedValue();
+                        $val = $this->getCalcValue($sheet->getCell($letter.$row));
                         if ($val)
                             $extra['note'][] = $val;
                     } while($val);
@@ -288,14 +290,14 @@ class SplitStrictTablesService
                     // TODO aggiungere eventuale formato nella colonna b
                     $letter++;
                     //$coordinate = $letter.$row;
-                    $val = $sheet->getCell($letter.$row)->getCalculatedValue();
+                    $val = $this->getCalcValue($sheet->getCell($letter.$row));
                     $extra[$key] = $val;
                     break;
                 default:
                     Log::notice("$key - key non trovata ");
                     $letter++;
                     //$coordinate = $letter.$row;
-                    $val = $sheet->getCell($letter.$row)->getCalculatedValue();
+                    $val = $this->getCalcValue($sheet->getCell($letter.$row));
                     $extra[$key] = $val;
                     break;
             }
@@ -498,7 +500,7 @@ class SplitStrictTablesService
     protected function setCellValues(&$headerData, $cell)
     {
         $headerData['fVal'] = $cell->getFormattedValue();
-        $headerData['val'] = $cell->getCalculatedValue();
+        $headerData['val'] = $this->getCalcValue($cell);
     }
 
     protected function setCellSpans(&$headerData, $coordinate, $cell, $columnIndex, $row, $mergeCells = [])

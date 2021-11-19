@@ -19,6 +19,8 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 class ElasticJsonService
 {
 
+    use SpreadsheetTrait;
+
     protected $importazione;
     protected $objectReader;
     protected $dataFile;
@@ -128,7 +130,7 @@ class ElasticJsonService
                 $coordinate = $column.$row;
                 $cell = $currentSheet->getCell($coordinate);
                 $dataType = $cell->getDataType();
-                $rawValue = $cell->getCalculatedValue();
+                $rawValue = $this->getCalcValue($cell);
                 $point = [
                     'id' => $i.'_'.$row,
                     'value' => $rawValue,
@@ -184,7 +186,7 @@ class ElasticJsonService
                 $coordinate = $column . $row;
                 $cell = $currentSheet->getCell($coordinate);
                 $dataType = $cell->getDataType();
-                $rawValue = $cell->getCalculatedValue();
+                $rawValue = $this->getCalcValue($cell);
                 $formattedValue = $cell->getFormattedValue();
                 if ($dataType == 's' && Str::startsWith($rawValue, 'MD:')) {
 
@@ -327,7 +329,7 @@ class ElasticJsonService
                 $nextColumn = Coordinate::stringFromColumnIndex($nextColumnIndex);
                 $coordinate = $nextColumn . $row;
                 $nextCell = $sheet->getCell($coordinate);
-                $value = $nextCell->getCalculatedValue();
+                $value = $this->getCalcValue($nextCell);
                 if (empty($value)) {
                     continue;
                 }
@@ -460,7 +462,7 @@ class ElasticJsonService
     protected function setCellValues(&$headerData, $cell)
     {
         $headerData['fVal'] = $cell->getFormattedValue();
-        $headerData['val'] = $cell->getCalculatedValue();
+        $headerData['val'] = $this->getCalcValue($cell);
     }
 
     protected function setCellSpans(&$headerData, $coordinate, $cell, $columnIndex, $row, $mergeCells = [])
@@ -595,7 +597,7 @@ class ElasticJsonService
 
                 $coordinate = $column . $row;
                 $cell = $sheet->getCell($coordinate);
-                $rawValue = $cell->getCalculatedValue();
+                $rawValue = $this->getCalcValue($cell);
                 if (!is_null($rawValue) && !empty(trim($rawValue))) {
                     $hasValue = true;
                     break;
@@ -626,7 +628,7 @@ class ElasticJsonService
                 $column = Coordinate::stringFromColumnIndex($columnIndex);
                 $coordinate = $column . $row;
                 $cell = $sheet->getCell($coordinate);
-                $rawValue = $cell->getCalculatedValue();
+                $rawValue =$this->getCalcValue($cell);
                 if (!is_null($rawValue)) {
                     if (!empty(trim($rawValue)) || $cell->getDataType() == 'n') {
                         $hasValue = true;
