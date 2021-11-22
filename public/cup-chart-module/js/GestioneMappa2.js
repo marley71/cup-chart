@@ -271,11 +271,14 @@ var commonMap = {
         var val = value;
         var decimali = that.data.extra.decimali;
         switch (that.data.extra.tipo_valore) {
-            case 'valore':
-                val = Number(value).toLocaleString("it-IT", {minimumFractionDigits: decimali,maximumFractionDigits:decimali});
-                break;
             case 'percentuale':
                 val =  value.toFixed(decimali);
+                break;
+            default:
+                if (that.data.extra.tipo == 'integer') {
+                    val = Number(value).toLocaleString("it-IT", {minimumFractionDigits: 0,maximumFractionDigits:0});
+                } else
+                    val = Number(value).toLocaleString("it-IT", {minimumFractionDigits: decimali,maximumFractionDigits:decimali});
                 break;
         }
         var formatted = that.data.extra.prefisso?that.data.extra.prefisso+' ':'';

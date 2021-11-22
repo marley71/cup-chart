@@ -1,5 +1,5 @@
 <template id="vue-table-template">
-    <div v-if="!loading" class="container d-flex flex-column min-h-75vh">
+    <div v-if="!loading" class="container-fluid d-flex flex-column min-h-75vh">
         <hr class="w-100 mb--20"/>
         <div class="row">
 
@@ -126,12 +126,22 @@
                         //console.log('i',i)
                         var rowCount = 0;
                         for (var k in values[ keys[i] ]) {
+                            var val = values[ keys[i] ][k]['total'];
                             //console.log('k',k,values[ keys[i] ])
                             if (!graphicData[rowCount]) {
                                 //console.log('getleftvalues',that._getLeftValues(k))
                                 graphicData.push(that._getLeftValues(k))
                             }
-                            graphicData[rowCount].push(parseFloat(parseFloat(values[ keys[i] ][k]['total']).toFixed(2)))
+                            if (json.result.extra.tipo === 'integer') {
+                                graphicData[rowCount].push(parseInt(val));
+                            } else {
+                                //val = parseFloat(val.toFixed(json.result.extra.decimali) );
+                                val = val.toFixed(json.result.extra.decimali);
+                                //console.log('val',val,json.result.extra.decimali)
+                                graphicData[rowCount].push(val);
+
+                            }
+                            //graphicData[rowCount].push(parseFloat(parseFloat(values[ keys[i] ][k]['total']).toFixed(2)))
                             rowCount++;
                         }
 
@@ -248,6 +258,9 @@
                         return compactValue.split(that.json.result.separatoreLeft);
                     }
                     return [compactValue]
+                },
+                isInt (val) {
+                    return Number(val) === val && val % 1 === 0;
                 }
             }
         })

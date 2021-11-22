@@ -1,5 +1,5 @@
 <template id="vue-chart-template">
-    <div class="container d-flex flex-column min-h-75vh">
+    <div class="container-fluid d-flex flex-column min-h-75vh">
         <hr class="w-100 mb--20"/>
         <div class="row">
 {{--            <div class="col-12">--}}
@@ -69,7 +69,7 @@
             <div class="flex-grow-1">
 
             </div>
-
+        </div>
     </div>
 </template>
 
@@ -208,10 +208,13 @@
                         switch (json.result.extra.tipo_valore) {
                             case 'percentuale':
                             case 'valore':
-                                var pattern = '0.0';
-                                if (json.result.extra.decimali === 0) {
+                                var pattern = '0.';
+                                if (json.result.extra.tipo=='integer' || json.result.extra.decimali === 0) {
                                     pattern = '0'
+                                } else {
+                                    pattern = pattern.padEnd(2+json.result.extra.decimali,'0');
                                 }
+                                //alert(pattern + json.result.extra.decimali);
                                 var formatter = new google.visualization.NumberFormat({
                                     pattern: pattern,
                                     suffix: json.result.extra.suffisso,

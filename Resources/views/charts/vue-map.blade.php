@@ -15,7 +15,7 @@
     }
 </style>
 <template id="vue-map-template">
-    <div v-if="!loading" class="container d-flex flex-column min-h-75vh">
+    <div v-if="!loading" class="container-fluid d-flex flex-column min-h-75vh">
         <hr class="w-100 mb--20"/>
         <div class="row">
 {{--            <div class="col-12">--}}

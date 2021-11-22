@@ -71,6 +71,8 @@ class ChartData
         $separtoreLeft = config('cupparis-chart.separatore_left');
         $maxValue = 0;
         $minValue = 0;
+        $isInt = true;
+
         foreach ($this->data['values'] as $item) {
 
             if (!$this->_matchFilter($item))
@@ -85,6 +87,7 @@ class ChartData
                 }
 
                 $floatValue = floatval($item['value']);
+                $isInt |= $this->isInt($floatValue);
                 $maxValue = $maxValue<$floatValue?$floatValue:$maxValue;
                 $minValue = $minValue>$floatValue?$floatValue:$minValue;
                 $rowLabel = [];
@@ -119,6 +122,7 @@ class ChartData
         $result['topSeries'] =$topSeries;
         $result['separatoreLeft'] = $separtoreLeft;
         $result['extra'] = Arr::get($this->data,'extra',[]);
+        $result['extra']['tipo'] = $isInt?'integer':'float';
         $result['min'] = $minValue<0?$minValue:0;
         $result['max'] = Arr::get($result['extra'],'tipo_valore',null) == 'percentuale'?100:$maxValue;
         //$result['max'] = $maxValue;
@@ -131,7 +135,7 @@ class ChartData
         $this->_setFilters();
         $this->_setSeries(true);
         $seriesValues = [];
-
+        $isInt = true;
         $series = $this->_getKeys($this->data['series']);
         $topSeries = $series['top'];
         $leftSeries = $series['left'];
@@ -181,6 +185,7 @@ class ChartData
                 }
                 $luogo = $item[$mapKey];
                 $floatValue = floatval($item['value']);
+                $isInt |= $this->isInt($floatValue);
                 switch ($mode) {
                     case 'comuni':
                     case 'regioni':
@@ -208,34 +213,8 @@ class ChartData
 
             }
         }
-//        $result['range'] = [];
-//        //Log::info(print_r($seriesValues,true));
-//        foreach ($seriesValues as $key => $val) {
-//            sort($seriesValues[$key]);
-//            $step = floor(count($seriesValues[$key]) / 4.0);
-//            $result['range'][$key] = [];
-//            for ($i=0;$i<4;$i++) {
-//                // TODO controllare il calcolo del range non funziona bene con valori ripetutti troppe volte
-//    //            if ($i>0 &&
-//    //                ($seriesValues[$i*$step]  == $seriesValues[($i-1) * $step]) )
-//    //                continue;
-//                $result['range'][$key][] = $seriesValues[$key][$i*$step];
-//            }
-//        }
 
         $result['range'] = $this->_calcolaIntervalli($seriesValues);
-
-//        sort($seriesValues);
-//        $step = floor(count($seriesValues) / 4.0);
-//        $result['range'] = [];
-//        for ($i=0;$i<4;$i++) {
-//            // TODO controllare il calcolo del range non funziona bene con valori ripetutti troppe volte
-////            if ($i>0 &&
-////                ($seriesValues[$i*$step]  == $seriesValues[($i-1) * $step]) )
-////                continue;
-//            $result['range'][] = $seriesValues[$i*$step];
-//        }
-
         $result['context'] = $this->filtersContext;
         $result['seriesContext'] = $this->seriesContext;
         $result['measureName'] = $mapKey;
@@ -246,6 +225,7 @@ class ChartData
         $result['leftSeries'] =$leftSeries;
         $result['topSeries'] =$topSeries;
         $result['extra'] = Arr::get($this->data,'extra',[]);
+        $result['extra']['tipo'] = $isInt?'integer':'float';
         return $result;
     }
 
@@ -533,5 +513,12 @@ class ChartData
 
     private function _getValidFilterValue($query,$filters) {
 
+    }
+
+    private function isInt($value) {
+        if ((int) $value == $value) {
+           return true;
+        }
+        return false;
     }
 }
