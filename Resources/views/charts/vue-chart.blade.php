@@ -161,11 +161,10 @@
                             'chart' : 'ComboChart',
                             'line' : 'ComboChart'
                         }
-                        var chartType = that.chartType; //that.gChartType || 'ComboChart';
+                        var chartType = that.chartType;
                         var vAxis = json.result.extra.tipo_valore;
                         var hAxis = leftKeys[0] ;
                         var seriesType = 'bars';
-
                         switch (chartType) {
                             case 'chart-o':
                                 var tmp = vAxis;
@@ -185,7 +184,12 @@
                                 minValue : (json.result.min+"")?json.result.min:0
                             },
                             hAxis: {
-                                title: hAxis
+                                title: hAxis,
+                                //slantedText : true,
+                                slantedTextAngle : 90,
+                                titleTextStyle : {
+                                    bold:true
+                                }
                             },
                             seriesType: seriesType,
                             //curveType : 'function',

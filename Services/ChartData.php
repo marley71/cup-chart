@@ -124,8 +124,9 @@ class ChartData
         $result['extra'] = Arr::get($this->data,'extra',[]);
         $result['extra']['tipo'] = $isInt?'integer':'float';
         $result['min'] = $minValue<0?$minValue:0;
-        $result['max'] = Arr::get($result['extra'],'tipo_valore',null) == 'percentuale'?100:$maxValue;
-        //$result['max'] = $maxValue;
+        // TODO questo potrebbe essere configurabile
+        //$result['max'] = Arr::get($result['extra'],'tipo_valore',null) == 'percentuale'?100:$maxValue;
+        $result['max'] = $maxValue;
         return $result;
     }
 
