@@ -23,6 +23,9 @@
                         </div>
 
                     </div>
+                    <div class="col-12 pt--2" v-for="nota in getNote()">
+                        <i>@{{nota}}</i>
+                    </div>
                 </div>
             </div>
             <div class="col-12 col-lg-3 d-flex flex-column">
@@ -323,7 +326,13 @@
                         }
                     }
                     return s;
-                }
+                },
+                getNote() {
+                    if (this.json.result) {
+                        return this.json.result.extra.note;
+                    }
+                    return [];
+                },
             }
         })
         return vChart;
