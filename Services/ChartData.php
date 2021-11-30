@@ -293,7 +293,7 @@ class ChartData
                         ];
                         $this->series[$key] = $filterValues[array_keys($filterValues)[0]];
                     } else {
-                        $filterValues['*'] = 'Tutti ';
+                        $filterValues['*'] = 'Tutte le categ.';
                         $this->seriesContext[$key] = [
                             'value' => '*',
                             'domainValues' => $filterValues
