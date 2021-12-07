@@ -70,6 +70,10 @@ class ChartData
         $cartesian = $this->_getSeries($topSeries);
         $cartesianAll = $this->_getSeries($topSeries,true);
 
+//        print_r($cartesian);
+//        print_r($cartesianAll);
+        //die();
+
 //        $rowKeys = $leftSeries[array_keys($series['left'])[0]]['values'];
 //        $rowIndexKeys = array_keys($rowKeys);
         $values = [];
@@ -250,7 +254,7 @@ class ChartData
         foreach ($queryParams as $key => $query) {
             $filterValues =  $this->data['series'][$key]['values'];
             if (substr($query,0,1) == "*") {
-                $filterValues['*'] = 'Tutti ';
+                $filterValues['*'] = 'Tutte le categ.';
                 $this->filtersContext[$key] = [
                     'value' => '*',
                     'domainValues' => $filterValues
@@ -290,146 +294,8 @@ class ChartData
         $queryParams = Arr::get($this->params,'series',[]);
         $this->series = [];
         $this->seriesContext = [];
-
-
-        foreach ($queryParams as $key => $query) {
-            if (is_string($query)) {
-                if (substr($query,0,1) == "*") {
-                    $selectValues =
-                    if ($query == '*') { // il filtro e' tutto quindi i valori verranno sommati come se non fosse definito
-                        // nel caso di mappa il concetto di visualizza tutti non ha senso, si mostra un solo valore per volta
-                        if ($isMap) {
-                            // prendo la serie e lo imposto al primo valore del dominio
-                            $this->seriesContext[$key] = [
-                                'value' => array_keys($filterValues)[0],
-                                'domainValues' => $filterValues
-                            ];
-                            $this->series[$key] = $filterValues[array_keys($filterValues)[0]];
-                        } else {
-                            $filterValues['*'] = 'Tutti ';
-                            $this->seriesContext[$key] = [
-                                'value' => '*',
-                                'domainValues' => $filterValues
-                            ];
-                        }
-                    }
-                    if (substr($query,0,2) == "*-") {
-                        $selectValue = substr($query,2);
-                        $this->filters[$key] = $selectValue;
-                        $this->seriesContext[$key] = [
-                            'value' => $selectValue,
-                            'domainValues' => $filterValues
-                        ];
-                    }
-                    continue;
-                }
-                if (substr($query,0,1) == "?") {
-                    if ($query == '?') {// i valori del filtro non possono essere sommate prendo il primo valore valido del filtro
-                        $this->seriesContext[$key] = [
-                            'value' => array_keys($filterValues)[0],
-                            'domainValues' => $filterValues
-                        ];
-                        $this->series[$key] = $filterValues[array_keys($filterValues)[0]];
-                    }
-                    if (substr($query,0,2) == "?-") {
-                        $selectValue = substr($query,2);
-                        $this->filtersContext[$key] = [
-                            'value' => $selectValue,
-                            'domainValues' => $filterValues
-                        ];
-                        $this->filters[$key] = $selectValue;
-                    }
-                } else {
-                    $this->series[$key] = $query;
-                }
-            }
-
-
-
-
-
-            
-            // multidimensionali
-
-
-
-
-
-
-        }
-    }
-
-
-    protected function _setSerieMultidimensionale() {
-        $queryParams = Arr::get($this->params,'series',[]);
-        $this->series = [];
-        $this->seriesContext = [];
         foreach ($queryParams as $key => $query) {
             $filterValues =  $this->data['series'][$key]['values'];
-            // multidimensionali
-
-            if (substr($query,0,1) == "*") {
-                if ($query == '*') { // il filtro e' tutto quindi i valori verranno sommati come se non fosse definito
-                    // nel caso di mappa il concetto di visualizza tutti non ha senso, si mostra un solo valore per volta
-                    if (!$this->multidimensionale) {
-                        $this->seriesContext[$key] = [
-                            'value' => array_keys($filterValues),
-                            'domainValues' => $filterValues
-                        ];
-
-                    } else {
-                        // prendo la serie e lo imposto al primo valore del dominio
-                        $this->seriesContext[$key] = [
-                            'value' => array_keys($filterValues)[0],
-                            'domainValues' => $filterValues
-                        ];
-                        $this->series[$key] = $filterValues[array_keys($filterValues)[0]];
-                    }
-                }
-                if (substr($query,0,2) == "*-") {
-                    $selectValue = substr($query,2);
-                    $this->filters[$key] = $selectValue;
-                    $this->seriesContext[$key] = [
-                        'value' => $selectValue,
-                        'domainValues' => $filterValues
-                    ];
-                }
-                continue;
-            }
-            if (substr($query,0,1) == "?") {
-                if ($query == '?') {// i valori del filtro non possono essere sommate prendo il primo valore valido del filtro
-                    $this->seriesContext[$key] = [
-                        'value' => array_keys($filterValues)[0],
-                        'domainValues' => $filterValues
-                    ];
-                    $this->series[$key] = $filterValues[array_keys($filterValues)[0]];
-                }
-                if (substr($query,0,2) == "?-") {
-                    $selectValue = substr($query,2);
-                    $this->filtersContext[$key] = [
-                        'value' => $selectValue,
-                        'domainValues' => $filterValues
-                    ];
-                    $this->filters[$key] = $selectValue;
-                }
-            } else {
-                $this->series[$key] = $query;
-            }
-        }
-    }
-
-    protected function _setSerieMonodimensionale() {
-        $queryParams = Arr::get($this->params,'series',[]);
-        $this->series = [];
-        $this->seriesContext = [];
-        foreach ($queryParams as $key => $query) {
-            $filterValues =  $this->data['series'][$key]['values'];
-            // multidimensionali
-
-
-
-
-
             if (substr($query,0,1) == "*") {
                 if ($query == '*') { // il filtro e' tutto quindi i valori verranno sommati come se non fosse definito
                     // nel caso di mappa il concetto di visualizza tutti non ha senso, si mostra un solo valore per volta
@@ -441,7 +307,7 @@ class ChartData
                         ];
                         $this->series[$key] = $filterValues[array_keys($filterValues)[0]];
                     } else {
-                        $filterValues['*'] = 'Tutti ';
+                        //$filterValues['*'] = 'Tutte le categ.';
                         $this->seriesContext[$key] = [
                             'value' => '*',
                             'domainValues' => $filterValues
@@ -450,7 +316,8 @@ class ChartData
                 }
                 if (substr($query,0,2) == "*-") {
                     $selectValue = substr($query,2);
-                    $this->filters[$key] = $selectValue;
+                    //$this->filters[$key] = $selectValue;
+                    $this->series[$key] = explode(",",$selectValue);
                     $this->seriesContext[$key] = [
                         'value' => $selectValue,
                         'domainValues' => $filterValues
@@ -475,10 +342,15 @@ class ChartData
                     $this->filters[$key] = $selectValue;
                 }
             } else {
-                $this->series[$key] = $query;
+                //$this->series[$key] = $query;
+                $this->series[$key] = explode(",",$query);
+                //echo print_r($this->series[$key],true) ."\n";
+                //die('query' . $query);
             }
         }
+        //echo print_r($this->series,true) ."\n";
     }
+
 
     protected function _matchFilter($values) {
         foreach ($this->filters as $keyFilter => $filter) {
@@ -490,6 +362,10 @@ class ChartData
     }
     protected function _matchSerieInValues($validSerie,$values) {
         $found = true;
+//        print_r($validSerie);
+//        echo "<br>----<br>";
+//        print_r($values);
+//        die();
         foreach ($validSerie as $keySerie => $valueSerie) {
             if ($values[$keySerie] == $valueSerie)
                 $found &= true;
@@ -591,12 +467,29 @@ class ChartData
             }
 
             if (Arr::exists($this->series,$serieName) ) {
+                //echo "serieName " . print_r($this->series[$serieName],true) ;
                 if ($this->series[$serieName] != '*') {
-                    $values[] = [$serie['values'][$this->series[$serieName]] ];
+                    //$values[] = [$serie['values'][$this->series[$serieName]] ];
+                    $keys = $this->series[$serieName];
+                    $vals = [];
+                    foreach ($keys as $k) {
+                        $vals[] = $serie['values'][$k];
+                    }
+                    $values = [$vals];
+                } else {
+                    $values[] = explode(',',$this->series[$serieName]);
                 }
             } else
                 $values[] = array_keys($serie['values']);
         }
+//        echo "<br> $all --values---<br>";
+//        print_r($values);
+//        echo "<br>---series--<br>";
+//        print_r($series);
+//        echo "<br>---this->series--<br>";
+//        print_r($this->series);
+//        echo "<br>-----<br>";
+
         $cartesian = $this->_cartesian($values);
         $keys = array_keys($series);
         $cartesianAssoc = [];
@@ -607,6 +500,9 @@ class ChartData
             }
             $cartesianAssoc[] = $tmp;
         }
+//        echo "<br>--cartesia asso---<br>";
+//        print_r($cartesianAssoc);
+//        die();
         return $cartesianAssoc;
     }
 
