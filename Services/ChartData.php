@@ -67,12 +67,15 @@ class ChartData
         $topSeries = $series['top'];
         $leftSeries = $series['left'];
 
+
         $cartesian = $this->_getSeries($topSeries);
         $cartesianAll = $this->_getSeries($topSeries,true);
 
-//        print_r($cartesian);
+
+
+        //print_r($cartesian);
 //        print_r($cartesianAll);
-        //die();
+//        die();
 
 //        $rowKeys = $leftSeries[array_keys($series['left'])[0]]['values'];
 //        $rowIndexKeys = array_keys($rowKeys);
@@ -86,10 +89,14 @@ class ChartData
 
             if (!$this->_matchFilter($item))
                 continue;
+//            print_r($cartesian);
+//            die();
+
             foreach ($cartesian as $subKeys) {
                 if (!$this->_matchSerieInValues($subKeys,$item)) {
                     continue;
                 }
+
                 $subKey = implode(' ',$subKeys);
                 if (!Arr::exists($values,$subKey)) {
                     $values[$subKey] = [];
@@ -305,7 +312,7 @@ class ChartData
                             'value' => array_keys($filterValues)[0],
                             'domainValues' => $filterValues
                         ];
-                        $this->series[$key] = $filterValues[array_keys($filterValues)[0]];
+                        $this->series[$key] = [$filterValues[array_keys($filterValues)[0]]];
                     } else {
                         //$filterValues['*'] = 'Tutte le categ.';
                         $this->seriesContext[$key] = [
@@ -344,11 +351,12 @@ class ChartData
             } else {
                 //$this->series[$key] = $query;
                 $this->series[$key] = explode(",",$query);
-                //echo print_r($this->series[$key],true) ."\n";
-                //die('query' . $query);
+//                echo print_r($this->series[$key],true) ."\n";
+//                die('query' . $query);
             }
         }
-        //echo print_r($this->series,true) ."\n";
+//        echo print_r($this->series,true) ."\n";
+//        die();
     }
 
 
@@ -362,16 +370,28 @@ class ChartData
     }
     protected function _matchSerieInValues($validSerie,$values) {
         $found = true;
+//        echo "validSeriea\n";
 //        print_r($validSerie);
-//        echo "<br>----<br>";
+//        echo "values \n";
 //        print_r($values);
-//        die();
+        //die();
         foreach ($validSerie as $keySerie => $valueSerie) {
-            if ($values[$keySerie] == $valueSerie)
-                $found &= true;
-            else
-                $found &= false;
+            //print_r($valueSerie);
+            //echo "testo " . $values[$keySerie] . "\n"; // con " . $valueSerie . "\n";
+            if (is_array($valueSerie)) {
+                if (in_array($values[$keySerie],$valueSerie))
+                    $found &= true;
+                else
+                    $found &= false;
+            } else {
+                if ($values[$keySerie] == $valueSerie)
+                    $found &= true;
+                else
+                    $found &= false;
+            }
+
         }
+        //echo "found $found\n";
         if ($found)
             return true;
         return false;
@@ -460,6 +480,11 @@ class ChartData
 
     protected function _getSeries($series,$all=false) {
         $values = [];
+//        echo "---serie totali\n";
+//        print_r($series);
+//        echo "---serie richieste\n";
+//        print_r($this->series);
+//        die();
         foreach ($series as $serieName => $serie) {
             if ($all) {
                 $values[] = array_keys($serie['values']);
@@ -467,29 +492,38 @@ class ChartData
             }
 
             if (Arr::exists($this->series,$serieName) ) {
-                //echo "serieName " . print_r($this->series[$serieName],true) ;
-                if ($this->series[$serieName] != '*') {
-                    //$values[] = [$serie['values'][$this->series[$serieName]] ];
-                    $keys = $this->series[$serieName];
-                    $vals = [];
-                    foreach ($keys as $k) {
-                        $vals[] = $serie['values'][$k];
-                    }
-                    $values = [$vals];
+                $serieValue = $this->series[$serieName];
+                if (is_array($serieValue)) {
+                    $values[] = $serieValue;
                 } else {
-                    $values[] = explode(',',$this->series[$serieName]);
+                    $setOperator= substr($serieValue,0,1);
+                    //echo "$setOperator :: $serieValue\n";
+                    switch ($setOperator) {
+                        case '*':  // formato * oppure *-val1,val2
+                            // ha solo l'operatore come il simbolo
+                            if ($setOperator == $serieValue) {
+                                $values[] = array_keys($serie['values']);
+                            } else {
+                                $serieValue = substr($serieValue,2);
+                                $values[] = explode(',',$serieValue);
+                            }
+                            break;
+                        case '?':
+                            if ($setOperator == $serieValue) {
+                                $values[] = [ array_keys($serie['values'])[0] ];
+                            } else {
+                                $serieValue = substr($serieValue,2);
+                                $values[] = explode(',',$serieValue);
+                            }
+                            break;
+                    }
                 }
-            } else
+            } else {
                 $values[] = array_keys($serie['values']);
+            }
+//            echo "---$serieName values\n";
+//            print_r($values);
         }
-//        echo "<br> $all --values---<br>";
-//        print_r($values);
-//        echo "<br>---series--<br>";
-//        print_r($series);
-//        echo "<br>---this->series--<br>";
-//        print_r($this->series);
-//        echo "<br>-----<br>";
-
         $cartesian = $this->_cartesian($values);
         $keys = array_keys($series);
         $cartesianAssoc = [];

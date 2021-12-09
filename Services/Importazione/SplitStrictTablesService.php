@@ -258,6 +258,8 @@ class SplitStrictTablesService
             'suffisso' => '',
             'prefisso' => '',
             'decimali' => 2,
+            'filtri_top' => [],
+            'filtri_left' => [],
         ];
         if ($this->getCalcValue($sheet->getCell($coordinate))) {
             // non c'e' la riga vuota
@@ -283,6 +285,16 @@ class SplitStrictTablesService
                             $extra['note'][] = $val;
                     } while($val);
                     break;
+                case 'filtri_top':
+                case 'filtri_left':
+                    do {
+                        $letter++;
+                        //$coordinate = $letter.$row;
+                        $val = $this->getCalcValue($sheet->getCell($letter.$row));
+                        if ($val)
+                            $extra[$key][] = $val;
+                    } while($val);
+                    break;
                 case 'tipo_valore':
                 case 'suffisso':
                 case 'prefisso':
@@ -293,6 +305,7 @@ class SplitStrictTablesService
                     $val = $this->getCalcValue($sheet->getCell($letter.$row));
                     $extra[$key] = $val;
                     break;
+
                 default:
                     Log::notice("$key - key non trovata ");
                     $letter++;
@@ -499,8 +512,10 @@ class SplitStrictTablesService
 
     protected function setCellValues(&$headerData, $cell)
     {
-        $headerData['fVal'] = $cell->getFormattedValue();
-        $headerData['val'] = $this->getCalcValue($cell);
+        $fval = $cell->getFormattedValue();
+        $val = $this->getCalcValue($cell);
+        $headerData['fVal'] = is_string($fval)?trim($fval):$fval;
+        $headerData['val'] = is_string($val)?trim($val):$val;
     }
 
     protected function setCellSpans(&$headerData, $coordinate, $cell, $columnIndex, $row, $mergeCells = [])

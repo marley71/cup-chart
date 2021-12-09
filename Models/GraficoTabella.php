@@ -96,7 +96,8 @@ class GraficoTabella extends Breeze
         switch ($menu_id) {
             default:
                 foreach ($impTabelle as $tabella) {
-                    $mDot = Arr::dot(json_decode($tabella->metadata, true));
+                    $metaData = json_decode($tabella->metadata, true);
+                    $mDot = Arr::dot($metaData);
                     $cupGrafico = $tabella->elastic_id;
                     $cupColors = "default";
                     $cupChartType = "chart";
@@ -155,17 +156,21 @@ class GraficoTabella extends Breeze
                             $cupChartType = 'line';
                             Log::info("trovato anno");
                         }
-//
-// else if ($leftName == 'sostanza') {
-//                            $cupFilters .= ($cupFilters?',':'') . 'sostanza:*';
-//                            echo "trovato sostanza\n";
-//                        }
                         $i++;
                     }
                     if ($cupType == 'map')
                         $cupConf = 'mapConf';
                     else
                         $cupConf = 'chartConf';
+
+                    if (count($metaData['extra']['filtri_top']) > 0) {
+                        $cupSeries = join('##',$metaData['extra']['filtri_top']);
+                    }
+                    if (count($metaData['extra']['filtri_left']) > 0) {
+                        $cupSeries = join('##',$metaData['extra']['filtri_left']);
+                    }
+
+
                     $attributes = [
                         'cup-class' => 'chart-preview',
                         'cup-type' => $cupType,
