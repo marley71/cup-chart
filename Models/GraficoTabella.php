@@ -167,7 +167,7 @@ class GraficoTabella extends Breeze
                         $cupSeries = join('##',$metaData['extra']['filtri_top']);
                     }
                     if (count($metaData['extra']['filtri_left']) > 0) {
-                        $cupSeries = join('##',$metaData['extra']['filtri_left']);
+                        $cupFilters = join('##',$metaData['extra']['filtri_left']);
                     }
 
 

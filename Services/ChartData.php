@@ -40,15 +40,17 @@ class ChartData
     public function getData($type,$params) {
         $this->params = $params;
         try {
-            if ($type=='map') {
-                $this->multidimensionale = false;
-                return $this->_mapData();
+            switch ($type) {
+                case 'map':
+                    $this->multidimensionale = false;
+                    return $this->_mapData();
+                case 'chart':
+                    return $this->_chartData();
+                case 'table':
+                    return $this->_tableData();
+                default:
+                    throw new \Exception($type . ' type non gestito');
             }
-            if ($type=='chart' || $type == 'table') {
-                // TODO gestire l'info multidimensionale o no
-                return $this->_chartData();
-            }
-            throw new \Exception($type . ' type non gestito');
         } catch (\Exception $e) {
             Log::error($e->getTraceAsString());
             throw new \Exception($e->getMessage() . " " . $e->getFile() . ":" . $e->getLine());
