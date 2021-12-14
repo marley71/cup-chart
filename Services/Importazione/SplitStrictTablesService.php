@@ -499,8 +499,12 @@ class SplitStrictTablesService
 
     protected function setCellValues(&$headerData, $cell)
     {
-        $headerData['fVal'] = $cell->getFormattedValue();
-        $headerData['val'] = $this->getCalcValue($cell);
+        $fVal = $cell->getFormattedValue();
+        $fVal = is_string($fVal)?trim($fVal," \t\n\r\0\x0B'"):$fVal;
+        $val = $this->getCalcValue($cell);
+        $val = is_string($val)?trim($val, " \t\n\r\0\x0B'"):$val;
+        $headerData['fVal'] =$fVal;
+        $headerData['val'] = $val;
     }
 
     protected function setCellSpans(&$headerData, $coordinate, $cell, $columnIndex, $row, $mergeCells = [])

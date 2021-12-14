@@ -87,7 +87,7 @@ class ChartData
                 }
 
                 $floatValue = floatval($item['value']);
-                $isInt |= $this->isInt($floatValue);
+                $isInt &= $this->isInt($floatValue);
                 $maxValue = $maxValue<$floatValue?$floatValue:$maxValue;
                 $minValue = $minValue>$floatValue?$floatValue:$minValue;
                 $rowLabel = [];
@@ -186,7 +186,7 @@ class ChartData
                 }
                 $luogo = $item[$mapKey];
                 $floatValue = floatval($item['value']);
-                $isInt |= $this->isInt($floatValue);
+                $isInt &= $this->isInt($floatValue);
                 switch ($mode) {
                     case 'comuni':
                     case 'regioni':
