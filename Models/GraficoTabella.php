@@ -148,7 +148,8 @@ class GraficoTabella extends Breeze
     }
 
     public static function defaultChartAttributes($tabella) {
-        $mDot = Arr::dot(json_decode($tabella->metadata, true));
+        $metaData = json_decode($tabella->metadata, true);
+        $mDot = Arr::dot($metaData);
         $cupGrafico = $tabella->elastic_id;
         $cupColors = "default";
         $cupChartType = "chart";
@@ -168,9 +169,10 @@ class GraficoTabella extends Breeze
                 $stop = true;
                 continue;
             }
-            //if (array_search($topName,self::$specialFilter) !== FALSE) {
-            $cupSeries .= ($cupSeries?',':'') . $topName. ':*';
-            //}
+            $keys = array_keys(Arr::get($metaData['inferredSeries']['top'][$i], "values",[]));
+            if (count($keys) > 1) {
+                $cupSeries .= ($cupSeries?',':'') . $topName. ':*';
+            }
             $i++;
         }
         // filters automatici
