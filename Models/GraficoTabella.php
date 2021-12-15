@@ -96,94 +96,18 @@ class GraficoTabella extends Breeze
         switch ($menu_id) {
             default:
                 foreach ($impTabelle as $tabella) {
-                    $mDot = Arr::dot(json_decode($tabella->metadata, true));
-                    $cupGrafico = $tabella->elastic_id;
-                    $cupColors = "default";
-                    $cupChartType = "chart";
-                    $cupType = 'chart';
-                    $cupFilters = '';
-                    $cupSeries = '';
-                    $cupConf = '';
-                    $cupTitle = $tabella->nome;
-                    //print_r($mDot);
-                    $stop = false;
-                    // series automatiche
-                    $i = 0;
-                    Log::info("$cupGrafico\n----analizzo series---");
-                    while (!$stop) {
-                        $topName = strtolower(Arr::get($mDot, "inferredSeries.top.$i.name"));
-                        if (!$topName) {
-                            $stop = true;
-                            continue;
-                        }
-                        //if (array_search($topName,self::$specialFilter) !== FALSE) {
-                            $cupSeries .= ($cupSeries?',':'') . $topName. ':*';
-                        //}
-                        $i++;
+
+                    $attributes = static::getChartAttributes($tabella);
+                    if ($attributes === false) {
+                        $attributes = self::defaultChartAttributes($tabella);
                     }
-                    // filters automatici
-                    $i = 0;
-                    $stop = false;
-                    Log::info("----analizzo filters----");
-                    while (!$stop) {
-                        $leftName = strtolower(Arr::get($mDot, "inferredSeries.left.$i.name"));
-                        if (!$leftName) {
-                            $stop = true;
-                            continue;
-                        }
-                        if ($leftName == 'comune') {
-                            $cupType = 'map';
-                            $cupChartType = 'comuni';
-                            $cupColors = 'gradiente_blu';
-                            Log::info("trovato comune");
-                        } else if ($leftName == 'provincia') {
-                            $cupType = 'map';
-                            $cupChartType = 'province';
-                            $cupColors = 'gradiente_blu';
-                            Log::info("trovata regione");
-                        } else if ($leftName == 'regione') {
-                            $cupType = 'map';
-                            $cupChartType = 'regioni';
-                            $cupColors = 'gradiente_blu';
-                            Log::info("trovata regione");
-                        } else if ($leftName == 'nazione') {
-                            $cupType = 'map';
-                            $cupChartType = 'nazioni';
-                            $cupColors = 'gradiente_blu';
-                            Log::info("trovata regione");
-                        } else if ($leftName == 'anno') {
-                            $cupChartType = 'line';
-                            Log::info("trovato anno");
-                        }
-//
-// else if ($leftName == 'sostanza') {
-//                            $cupFilters .= ($cupFilters?',':'') . 'sostanza:*';
-//                            echo "trovato sostanza\n";
-//                        }
-                        $i++;
-                    }
-                    if ($cupType == 'map')
-                        $cupConf = 'mapConf';
-                    else
-                        $cupConf = 'chartConf';
-                    $attributes = [
-                        'cup-class' => 'chart-preview',
-                        'cup-type' => $cupType,
-                        'cup-grafico' => $cupGrafico,
-                        'cup-colors' => $cupColors,
-                        'cup-chart-type' => $cupChartType,
-                        'cup-filters' => $cupFilters,
-                        'cup-series' => $cupSeries,
-                        'cup-titolo' => $cupTitle,
-                        'cup-conf' => $cupConf,
-                    ];
-                    $html = self::getHtml($attributes);
+                    $html = static::getHtml($attributes);
 //                    $html = "<div class=\"chart-preview\" cup-type=\"$cupType\" cup-grafico=\"$cupGrafico\"
 //                                cup-colors=\"$cupColors\" cup-chart-type=\"$cupChartType\"
 //                                 cup-filters=\"$cupFilters\" cup-series=\"$cupSeries\" cup-titolo=\"$cupTitle\">
 //                            </div>";
                     \App\Models\GraficoTabella::create([
-                        'nome' => $cupGrafico,
+                        'nome' => $attributes['cup-grafico'],
                         'html' => $html,
                         'attributes' => json_encode($attributes),
                         'importazione_tabelle_id' => $tabella->getKey()
@@ -191,14 +115,14 @@ class GraficoTabella extends Breeze
                     // aggiungo tabella dati
                     $attributes['class'] = "table-preview";
                     $attributes['cup-type'] = 'table';
-                    $html = self::getHtml($attributes);
+                    $html = static::getHtml($attributes);
 
 //                    $html = "<div class=\"table-preview\" cup-type=\"table\" cup-grafico=\"$cupGrafico\"
 //                                cup-colors=\"$cupColors\" cup-chart-type=\"$cupChartType\"
 //                                 cup-filters=\"$cupFilters\" cup-series=\"$cupSeries\" cup-titolo=\"$cupTitle\">
 //                            </div>";
                     \App\Models\GraficoTabella::create([
-                        'nome' => $cupGrafico,
+                        'nome' =>  $attributes['cup-grafico'],
                         'html' => $html,
                         'attributes' => json_encode($attributes),
                         'importazione_tabelle_id' => $tabella->getKey()
@@ -217,5 +141,94 @@ class GraficoTabella extends Breeze
             '" cup-series="' . $params['cup-series'] . '" cup-titolo="' . $params['cup-titolo'] .
             '" cup-conf="' . $params['cup-conf'] . '"></div>';
         return $html;
+    }
+
+    public static function getChartAttributes($tabella) {
+        return false;
+    }
+
+    public static function defaultChartAttributes($tabella) {
+        $mDot = Arr::dot(json_decode($tabella->metadata, true));
+        $cupGrafico = $tabella->elastic_id;
+        $cupColors = "default";
+        $cupChartType = "chart";
+        $cupType = 'chart';
+        $cupFilters = '';
+        $cupSeries = '';
+        $cupConf = '';
+        $cupTitle = $tabella->nome;
+        //print_r($mDot);
+        $stop = false;
+        // series automatiche
+        $i = 0;
+        Log::info("$cupGrafico\n----analizzo series---");
+        while (!$stop) {
+            $topName = strtolower(Arr::get($mDot, "inferredSeries.top.$i.name"));
+            if (!$topName) {
+                $stop = true;
+                continue;
+            }
+            //if (array_search($topName,self::$specialFilter) !== FALSE) {
+            $cupSeries .= ($cupSeries?',':'') . $topName. ':*';
+            //}
+            $i++;
+        }
+        // filters automatici
+        $i = 0;
+        $stop = false;
+        Log::info("----analizzo filters----");
+        while (!$stop) {
+            $leftName = strtolower(Arr::get($mDot, "inferredSeries.left.$i.name"));
+            if (!$leftName) {
+                $stop = true;
+                continue;
+            }
+            if ($leftName == 'comune') {
+                $cupType = 'map';
+                $cupChartType = 'comuni';
+                $cupColors = 'gradiente_blu';
+                Log::info("trovato comune");
+            } else if ($leftName == 'provincia') {
+                $cupType = 'map';
+                $cupChartType = 'province';
+                $cupColors = 'gradiente_blu';
+                Log::info("trovata provincia");
+            } else if ($leftName == 'regione') {
+                $cupType = 'map';
+                $cupChartType = 'regioni';
+                $cupColors = 'gradiente_blu';
+                Log::info("trovata regione");
+            } else if ($leftName == 'nazione') {
+                $cupType = 'map';
+                $cupChartType = 'nazioni';
+                $cupColors = 'gradiente_blu';
+                Log::info("trovata nazione");
+            } else if ($leftName == 'anno') {
+                $cupChartType = 'line';
+                Log::info("trovato anno");
+            }
+//
+// else if ($leftName == 'sostanza') {
+//                            $cupFilters .= ($cupFilters?',':'') . 'sostanza:*';
+//                            echo "trovato sostanza\n";
+//                        }
+            $i++;
+        }
+        if ($cupType == 'map')
+            $cupConf = 'mapConf';
+        else
+            $cupConf = 'chartConf';
+        $attributes = [
+            'cup-class' => 'chart-preview',
+            'cup-type' => $cupType,
+            'cup-grafico' => $cupGrafico,
+            'cup-colors' => $cupColors,
+            'cup-chart-type' => $cupChartType,
+            'cup-filters' => $cupFilters,
+            'cup-series' => $cupSeries,
+            'cup-titolo' => $cupTitle,
+            'cup-conf' => $cupConf,
+        ];
+        return $attributes;
     }
 }
