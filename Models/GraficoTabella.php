@@ -132,14 +132,14 @@ class GraficoTabella extends Breeze
         }
     }
 
-    public static function getHtml ($params) {
-        if (!Arr::exists($params,'cup-titolo'))
-            $params['cup-titolo'] = '';
-        $html = '<div class="' . $params['cup-class'] . '" cup-type="' . $params['cup-type']  .
-            '" cup-grafico="' . $params['cup-grafico'] . '" cup-colors="' . $params['cup-colors'] .
-            '" cup-chart-type="' . $params['cup-chart-type'] . '" cup-filters="' . $params['cup-filters'] .
-            '" cup-series="' . $params['cup-series'] . '" cup-titolo="' . $params['cup-titolo'] .
-            '" cup-conf="' . $params['cup-conf'] . '"></div>';
+    public static function getHtml ($attributes) {
+        if (!Arr::exists($attributes,'cup-titolo'))
+            $attributes['cup-titolo'] = '';
+        $html = '<div class="' . $attributes['cup-class'] . '" cup-type="' . $attributes['cup-type']  .
+            '" cup-grafico="' . $attributes['cup-grafico'] . '" cup-colors="' . $attributes['cup-colors'] .
+            '" cup-chart-type="' . $attributes['cup-chart-type'] . '" cup-filters="' . $attributes['cup-filters'] .
+            '" cup-series="' . $attributes['cup-series'] . '" cup-titolo="' . $attributes['cup-titolo'] .
+            '" cup-conf="' . $attributes['cup-conf'] . '"></div>';
         return $html;
     }
 

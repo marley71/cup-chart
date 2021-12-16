@@ -302,7 +302,8 @@ class ChartData
                 }
                 if (substr($query,0,2) == "*-") {
                     $selectValue = substr($query,2);
-                    $this->filters[$key] = $selectValue;
+                    //$this->filters[$key] = $selectValue;
+                    $this->series[$key] = $selectValue;
                     $this->seriesContext[$key] = [
                         'value' => $selectValue,
                         'domainValues' => $filterValues
@@ -320,11 +321,11 @@ class ChartData
                 }
                 if (substr($query,0,2) == "?-") {
                     $selectValue = substr($query,2);
-                    $this->filtersContext[$key] = [
+                    $this->seriesContext[$key] = [
                         'value' => $selectValue,
                         'domainValues' => $filterValues
                     ];
-                    $this->filters[$key] = $selectValue;
+                    $this->series[$key] = $selectValue;
                 }
             } else {
                 $this->series[$key] = $query;
