@@ -101,26 +101,21 @@ class GraficoTabella extends Breeze
                     if ($attributes === false) {
                         $attributes = self::defaultChartAttributes($tabella);
                     }
+
+                    $attributes = static::_postAttributes($tabella,$attributes);
+
                     $html = static::getHtml($attributes);
-//                    $html = "<div class=\"chart-preview\" cup-type=\"$cupType\" cup-grafico=\"$cupGrafico\"
-//                                cup-colors=\"$cupColors\" cup-chart-type=\"$cupChartType\"
-//                                 cup-filters=\"$cupFilters\" cup-series=\"$cupSeries\" cup-titolo=\"$cupTitle\">
-//                            </div>";
                     \App\Models\GraficoTabella::create([
                         'nome' => $attributes['cup-grafico'],
                         'html' => $html,
                         'attributes' => json_encode($attributes),
                         'importazione_tabelle_id' => $tabella->getKey()
                     ]);
+
                     // aggiungo tabella dati
                     $attributes['class'] = "table-preview";
                     $attributes['cup-type'] = 'table';
                     $html = static::getHtml($attributes);
-
-//                    $html = "<div class=\"table-preview\" cup-type=\"table\" cup-grafico=\"$cupGrafico\"
-//                                cup-colors=\"$cupColors\" cup-chart-type=\"$cupChartType\"
-//                                 cup-filters=\"$cupFilters\" cup-series=\"$cupSeries\" cup-titolo=\"$cupTitle\">
-//                            </div>";
                     \App\Models\GraficoTabella::create([
                         'nome' =>  $attributes['cup-grafico'],
                         'html' => $html,
@@ -169,10 +164,11 @@ class GraficoTabella extends Breeze
                 $stop = true;
                 continue;
             }
-            $keys = array_keys(Arr::get($metaData['inferredSeries']['top'][$i], "values",[]));
-            if (count($keys) > 1) {
-                $cupSeries .= ($cupSeries?',':'') . $topName. ':*';
-            }
+            $cupSeries .= ($cupSeries?',':'') . $topName. ':*';
+//            $keys = array_keys(Arr::get($metaData['inferredSeries']['top'][$i], "values",[]));
+//            if (count($keys) > 1) {
+//                $cupSeries .= ($cupSeries?',':'') . $topName. ':*';
+//            }
             $i++;
         }
         // filters automatici
@@ -231,6 +227,31 @@ class GraficoTabella extends Breeze
             'cup-titolo' => $cupTitle,
             'cup-conf' => $cupConf,
         ];
+        return $attributes;
+    }
+
+    /**
+     * esegue la post aggiustamento degli attributi comuni a tutti
+     * @param $tabella
+     * @param $attributes
+     * @return void
+     */
+    static private function _postAttributes($tabella,$attributes) {
+        $metaData = json_decode($tabella->metadata, true);
+        $topKeys = Arr::get($metaData['inferredSeries'],'top');
+        $topStringaKeys = explode(',',$attributes['cup-series']);
+        $cupSeries = "";
+        foreach ($topStringaKeys as $stringa) {
+            $tmp = explode(':',$stringa);
+            foreach ($topKeys as $top) {
+                if ($top['name'] == $tmp[0]) {
+                    $values = array_keys($top['values']);
+                    if (count($values) > 1)
+                        $cupSeries .= ($cupSeries?',':'') . $tmp[0]. ':*';
+                }
+            }
+        }
+        $attributes['cup-series'] = $cupSeries;
         return $attributes;
     }
 }
