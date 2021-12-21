@@ -96,114 +96,28 @@ class GraficoTabella extends Breeze
         switch ($menu_id) {
             default:
                 foreach ($impTabelle as $tabella) {
-                    $metaData = json_decode($tabella->metadata, true);
-                    $mDot = Arr::dot($metaData);
-                    $cupGrafico = $tabella->elastic_id;
-                    $cupColors = "default";
-                    $cupChartType = "chart";
-                    $cupType = 'chart';
-                    $cupFilters = '';
-                    $cupSeries = '';
-                    $cupConf = '';
-                    $cupTitle = $tabella->nome;
-                    //print_r($mDot);
-                    $stop = false;
-                    // series automatiche
-                    $i = 0;
-                    Log::info("$cupGrafico\n----analizzo series---");
-                    while (!$stop) {
-                        $topName = strtolower(Arr::get($mDot, "inferredSeries.top.$i.name"));
-                        if (!$topName) {
-                            $stop = true;
-                            continue;
-                        }
-                        //if (array_search($topName,self::$specialFilter) !== FALSE) {
-                            $cupSeries .= ($cupSeries?',':'') . $topName. ':*';
-                        //}
-                        $i++;
-                    }
-                    // filters automatici
-                    $i = 0;
-                    $stop = false;
-                    Log::info("----analizzo filters----");
-                    while (!$stop) {
-                        $leftName = strtolower(Arr::get($mDot, "inferredSeries.left.$i.name"));
-                        if (!$leftName) {
-                            $stop = true;
-                            continue;
-                        }
-                        if ($leftName == 'comune') {
-                            $cupType = 'map';
-                            $cupChartType = 'comuni';
-                            $cupColors = 'gradiente_blu';
-                            Log::info("trovato comune");
-                        } else if ($leftName == 'provincia') {
-                            $cupType = 'map';
-                            $cupChartType = 'province';
-                            $cupColors = 'gradiente_blu';
-                            Log::info("trovata regione");
-                        } else if ($leftName == 'regione') {
-                            $cupType = 'map';
-                            $cupChartType = 'regioni';
-                            $cupColors = 'gradiente_blu';
-                            Log::info("trovata regione");
-                        } else if ($leftName == 'nazione') {
-                            $cupType = 'map';
-                            $cupChartType = 'nazioni';
-                            $cupColors = 'gradiente_blu';
-                            Log::info("trovata regione");
-                        } else if ($leftName == 'anno') {
-                            $cupChartType = 'line';
-                            Log::info("trovato anno");
-                        }
-                        $i++;
-                    }
-                    if ($cupType == 'map')
-                        $cupConf = 'mapConf';
-                    else
-                        $cupConf = 'chartConf';
 
-                    if (count($metaData['extra']['filtri_top']) > 0) {
-                        $cupSeries = join('##',$metaData['extra']['filtri_top']);
-                    }
-                    if (count($metaData['extra']['filtri_left']) > 0) {
-                        $cupFilters = join('##',$metaData['extra']['filtri_left']);
+                    $attributes = static::getChartAttributes($tabella);
+                    if ($attributes === false) {
+                        $attributes = self::defaultChartAttributes($tabella);
                     }
 
+                    $attributes = static::_postAttributes($tabella,$attributes);
 
-                    $attributes = [
-                        'cup-class' => 'chart-preview',
-                        'cup-type' => $cupType,
-                        'cup-grafico' => $cupGrafico,
-                        'cup-colors' => $cupColors,
-                        'cup-chart-type' => $cupChartType,
-                        'cup-filters' => $cupFilters,
-                        'cup-series' => $cupSeries,
-                        'cup-titolo' => $cupTitle,
-                        'cup-conf' => $cupConf,
-                    ];
-                    $html = self::getHtml($attributes);
-//                    $html = "<div class=\"chart-preview\" cup-type=\"$cupType\" cup-grafico=\"$cupGrafico\"
-//                                cup-colors=\"$cupColors\" cup-chart-type=\"$cupChartType\"
-//                                 cup-filters=\"$cupFilters\" cup-series=\"$cupSeries\" cup-titolo=\"$cupTitle\">
-//                            </div>";
+                    $html = static::getHtml($attributes);
                     \App\Models\GraficoTabella::create([
-                        'nome' => $cupGrafico,
+                        'nome' => $attributes['cup-grafico'],
                         'html' => $html,
                         'attributes' => json_encode($attributes),
                         'importazione_tabelle_id' => $tabella->getKey()
                     ]);
+
                     // aggiungo tabella dati
                     $attributes['class'] = "table-preview";
                     $attributes['cup-type'] = 'table';
-                    $html = self::getHtml($attributes);
-
-//                    $html = "<div class=\"table-preview\" cup-type=\"table\" cup-grafico=\"$cupGrafico\"
-//                                cup-colors=\"$cupColors\" cup-chart-type=\"$cupChartType\"
-//                                 cup-filters=\"$cupFilters\" cup-series=\"$cupSeries\" cup-titolo=\"$cupTitle\">
-//                            </div>";
+                    $html = static::getHtml($attributes);
                     \App\Models\GraficoTabella::create([
-                        'nome' => $cupGrafico,
+                        'nome' =>  $attributes['cup-grafico'],
                         'html' => $html,
                         'attributes' => json_encode($attributes),
                         'importazione_tabelle_id' => $tabella->getKey()
@@ -213,14 +127,141 @@ class GraficoTabella extends Breeze
         }
     }
 
-    public static function getHtml ($params) {
-        if (!Arr::exists($params,'cup-titolo'))
-            $params['cup-titolo'] = '';
-        $html = '<div class="' . $params['cup-class'] . '" cup-type="' . $params['cup-type']  .
-            '" cup-grafico="' . $params['cup-grafico'] . '" cup-colors="' . $params['cup-colors'] .
-            '" cup-chart-type="' . $params['cup-chart-type'] . '" cup-filters="' . $params['cup-filters'] .
-            '" cup-series="' . $params['cup-series'] . '" cup-titolo="' . $params['cup-titolo'] .
-            '" cup-conf="' . $params['cup-conf'] . '"></div>';
+    public static function getHtml ($attributes) {
+        if (!Arr::exists($attributes,'cup-titolo'))
+            $attributes['cup-titolo'] = '';
+        $html = '<div class="' . $attributes['cup-class'] . '" cup-type="' . $attributes['cup-type']  .
+            '" cup-grafico="' . $attributes['cup-grafico'] . '" cup-colors="' . $attributes['cup-colors'] .
+            '" cup-chart-type="' . $attributes['cup-chart-type'] . '" cup-filters="' . $attributes['cup-filters'] .
+            '" cup-series="' . $attributes['cup-series'] . '" cup-titolo="' . $attributes['cup-titolo'] .
+            '" cup-conf="' . $attributes['cup-conf'] . '"></div>';
         return $html;
+    }
+
+    public static function getChartAttributes($tabella) {
+        return false;
+    }
+
+    public static function defaultChartAttributes($tabella) {
+        $metaData = json_decode($tabella->metadata, true);
+        $mDot = Arr::dot($metaData);
+        $cupGrafico = $tabella->elastic_id;
+        $cupColors = "default";
+        $cupChartType = "chart";
+        $cupType = 'chart';
+        $cupFilters = '';
+        $cupSeries = '';
+        $cupConf = '';
+        $cupTitle = $tabella->nome;
+        //print_r($mDot);
+        $stop = false;
+        // series automatiche
+        $i = 0;
+        Log::info("$cupGrafico\n----analizzo series---");
+        while (!$stop) {
+            $topName = strtolower(Arr::get($mDot, "inferredSeries.top.$i.name"));
+            if (!$topName) {
+                $stop = true;
+                continue;
+            }
+            $cupSeries .= ($cupSeries?',':'') . $topName. ':*';
+//            $keys = array_keys(Arr::get($metaData['inferredSeries']['top'][$i], "values",[]));
+//            if (count($keys) > 1) {
+//                $cupSeries .= ($cupSeries?',':'') . $topName. ':*';
+//            }
+            $i++;
+        }
+        // filters automatici
+        $i = 0;
+        $stop = false;
+        Log::info("----analizzo filters----");
+        while (!$stop) {
+            $leftName = strtolower(Arr::get($mDot, "inferredSeries.left.$i.name"));
+            if (!$leftName) {
+                $stop = true;
+                continue;
+            }
+            if ($leftName == 'comune') {
+                $cupType = 'map';
+                $cupChartType = 'comuni';
+                $cupColors = 'gradiente_blu';
+                Log::info("trovato comune");
+            } else if ($leftName == 'provincia') {
+                $cupType = 'map';
+                $cupChartType = 'province';
+                $cupColors = 'gradiente_blu';
+                Log::info("trovata provincia");
+            } else if ($leftName == 'regione') {
+                $cupType = 'map';
+                $cupChartType = 'regioni';
+                $cupColors = 'gradiente_blu';
+                Log::info("trovata regione");
+            } else if ($leftName == 'nazione') {
+                $cupType = 'map';
+                $cupChartType = 'nazioni';
+                $cupColors = 'gradiente_blu';
+                Log::info("trovata nazione");
+            } else if ($leftName == 'anno') {
+                $cupChartType = 'line';
+                Log::info("trovato anno");
+            }
+//
+// else if ($leftName == 'sostanza') {
+//                            $cupFilters .= ($cupFilters?',':'') . 'sostanza:*';
+//                            echo "trovato sostanza\n";
+//                        }
+            $i++;
+        }
+        if ($cupType == 'map')
+            $cupConf = 'mapConf';
+        else
+            $cupConf = 'chartConf';
+
+        // se sono stati definiti dei filtri in excel sovrascrive tutti gli altri
+        if (count($metaData['extra']['filtri_top']) > 0) {
+            $cupSeries = join('##',$metaData['extra']['filtri_top']);
+        }
+        if (count($metaData['extra']['filtri_left']) > 0) {
+            $cupFilters = join('##',$metaData['extra']['filtri_left']);
+        }
+
+
+        $attributes = [
+            'cup-class' => 'chart-preview',
+            'cup-type' => $cupType,
+            'cup-grafico' => $cupGrafico,
+            'cup-colors' => $cupColors,
+            'cup-chart-type' => $cupChartType,
+            'cup-filters' => $cupFilters,
+            'cup-series' => $cupSeries,
+            'cup-titolo' => $cupTitle,
+            'cup-conf' => $cupConf,
+        ];
+        return $attributes;
+    }
+
+    /**
+     * esegue la post aggiustamento degli attributi comuni a tutti
+     * @param $tabella
+     * @param $attributes
+     * @return void
+     */
+    static private function _postAttributes($tabella,$attributes) {
+        $metaData = json_decode($tabella->metadata, true);
+        $topKeys = Arr::get($metaData['inferredSeries'],'top');
+        $topStringaKeys = explode(',',$attributes['cup-series']);
+        $cupSeries = "";
+        foreach ($topStringaKeys as $stringa) {
+            $tmp = explode(':',$stringa);
+            foreach ($topKeys as $top) {
+                if ($top['name'] == $tmp[0]) {
+                    $values = array_keys($top['values']);
+                    if (count($values) > 1)
+                        $cupSeries .= ($cupSeries?',':'') . $tmp[0]. ':*';
+                }
+            }
+        }
+        $attributes['cup-series'] = $cupSeries;
+        return $attributes;
     }
 }

@@ -512,10 +512,12 @@ class SplitStrictTablesService
 
     protected function setCellValues(&$headerData, $cell)
     {
-        $fval = $cell->getFormattedValue();
+        $fVal = $cell->getFormattedValue();
+        $fVal = is_string($fVal)?trim($fVal," \t\n\r\0\x0B'"):$fVal;
         $val = $this->getCalcValue($cell);
-        $headerData['fVal'] = is_string($fval)?trim($fval):$fval;
-        $headerData['val'] = is_string($val)?trim($val):$val;
+        $val = is_string($val)?trim($val, " \t\n\r\0\x0B'"):$val;
+        $headerData['fVal'] =$fVal;
+        $headerData['val'] = $val;
     }
 
     protected function setCellSpans(&$headerData, $coordinate, $cell, $columnIndex, $row, $mergeCells = [])
