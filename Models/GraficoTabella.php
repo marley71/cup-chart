@@ -144,6 +144,7 @@ class GraficoTabella extends Breeze
 
     public static function defaultChartAttributes($tabella) {
         $metaData = json_decode($tabella->metadata, true);
+        $token_split_filters = config('cupparis-chart.token_split_filters',',');
         $mDot = Arr::dot($metaData);
         $cupGrafico = $tabella->elastic_id;
         $cupColors = "default";
@@ -164,7 +165,7 @@ class GraficoTabella extends Breeze
                 $stop = true;
                 continue;
             }
-            $cupSeries .= ($cupSeries?',':'') . $topName. ':*';
+            $cupSeries .= ($cupSeries?$token_split_filters:'') . $topName. ':*';
 //            $keys = array_keys(Arr::get($metaData['inferredSeries']['top'][$i], "values",[]));
 //            if (count($keys) > 1) {
 //                $cupSeries .= ($cupSeries?',':'') . $topName. ':*';
@@ -219,10 +220,10 @@ class GraficoTabella extends Breeze
 
         // se sono stati definiti dei filtri in excel sovrascrive tutti gli altri
         if (count($metaData['extra']['filtri_top']) > 0) {
-            $cupSeries = join('##',$metaData['extra']['filtri_top']);
+            $cupSeries = join($token_split_filters,$metaData['extra']['filtri_top']);
         }
         if (count($metaData['extra']['filtri_left']) > 0) {
-            $cupFilters = join('##',$metaData['extra']['filtri_left']);
+            $cupFilters = join($token_split_filters,$metaData['extra']['filtri_left']);
         }
 
 
@@ -247,6 +248,7 @@ class GraficoTabella extends Breeze
      * @return void
      */
     static private function _postAttributes($tabella,$attributes) {
+        $token_split_filters = config('cupparis-chart.token_split_filters',',');
         $metaData = json_decode($tabella->metadata, true);
         $topKeys = Arr::get($metaData['inferredSeries'],'top');
         $topStringaKeys = explode(',',$attributes['cup-series']);
@@ -257,7 +259,7 @@ class GraficoTabella extends Breeze
                 if ($top['name'] == $tmp[0]) {
                     $values = array_keys($top['values']);
                     if (count($values) > 1)
-                        $cupSeries .= ($cupSeries?',':'') . $tmp[0]. ':*';
+                        $cupSeries .= ($cupSeries?$token_split_filters:'') . $tmp[0]. ':*';
                 }
             }
         }

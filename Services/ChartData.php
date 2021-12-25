@@ -223,12 +223,12 @@ class ChartData
             }
         }
 
-
+        //print_r($series);
         $ll = $series['left'][array_keys($series['left'])[0]];
         $result['measureName'] = Arr::get($ll, 'label', '');
         $result['description'] = $this->data['titolo'];
         $result['values'] = $values;
-        $result['context'] = $this->filtersContext;
+        $result['filtersContext'] = $this->filtersContext;
         $result['seriesContext'] = $this->seriesContext;
         $result['leftSeries'] = $leftSeries;
         $result['topSeries'] = $topSeries;
@@ -239,6 +239,8 @@ class ChartData
         // TODO questo potrebbe essere configurabile
         //$result['max'] = Arr::get($result['extra'],'tipo_valore',null) == 'percentuale'?100:$maxValue;
         $result['max'] = $maxValue;
+        $result['currentFilters'] = $this->filters;
+        $result['currentSeries'] = $this->series;
         return $result;
     }
 
@@ -328,7 +330,7 @@ class ChartData
         }
 
         $result['range'] = $this->_calcolaIntervalli($seriesValues);
-        $result['context'] = $this->filtersContext;
+        $result['filtersContext'] = $this->filtersContext;
         $result['seriesContext'] = $this->seriesContext;
         $result['measureName'] = $mapKey;
         $result['description'] = $this->data['titolo'];
@@ -339,6 +341,8 @@ class ChartData
         $result['topSeries'] = $topSeries;
         $result['extra'] = Arr::get($this->data, 'extra', []);
         $result['extra']['tipo'] = $isInt ? 'integer' : 'float';
+
+
         return $result;
     }
 
@@ -358,30 +362,32 @@ class ChartData
         foreach ($queryParams as $key => $query) {
             $filterValues = $this->data['series'][$key]['values'];
             if (substr($query, 0, 1) == "*") {
-                $filterValues['*'] = 'Tutte le categ.';
+
+                //$filterValues['*'] = 'Tutte le categ.';
                 $this->filtersContext[$key] = [
                     'value' => '*',
-                    'domainValues' => $filterValues
+                    'domainValues' => $filterValues,
+                    'cardinalita' => '*'
                 ];
-                if ($query == '*') { // il filtro e' tutto quindi i valori verranno sommati come se non fosse definito
-                    ;
-                }
+                $this->filters[$key] = array_keys($filterValues);
                 if (substr($query, 0, 2) == "*-") {
                     $selectValue = substr($query, 2);
-                    $this->filters[$key] = $selectValue;
+                    $this->filtersContext[$key]['value'] = explode(",", $selectValue);
+                    $this->filters[$key] = explode(",", $selectValue);
                 }
                 continue;
             }
             if (substr($query, 0, 1) == "?") {
                 if ($query == '?') {// i valori del filtro non possono essere sommato prendo il primo valore valido del filtro
                     $this->filtersContext[$key] = [
-                        'value' => array_keys($filterValues)[0],
-                        'domainValues' => $filterValues
+                        'value' => [ array_keys($filterValues)[0] ],
+                        'domainValues' => $filterValues,
+                        'cardinalita' => '?'
                     ];
-                    $this->filters[$key] = $filterValues[array_keys($filterValues)[0]];
+                    $this->filters[$key] = [$filterValues[array_keys($filterValues)[0]] ];
                 }
                 if (substr($query, 0, 2) == "?-") {
-                    $selectValue = substr($query, 2);
+                    $selectValue = [ substr($query, 2) ];
                     $this->filtersContext[$key] = [
                         'value' => $selectValue,
                         'domainValues' => $filterValues
@@ -389,10 +395,11 @@ class ChartData
                     $this->filters[$key] = $selectValue;
                 }
             } else {
-                $this->filters[$key] = $query;
+                $this->filters[$key] = explode(',',$query);
             }
         }
     }
+
 
     protected function _setSeries($isMap = false)
     {
@@ -408,24 +415,28 @@ class ChartData
                         // prendo la serie e lo imposto al primo valore del dominio
                         $this->seriesContext[$key] = [
                             'value' => array_keys($filterValues)[0],
-                            'domainValues' => $filterValues
+                            'domainValues' => $filterValues,
+                            'cardinalita' => '?'
                         ];
                         $this->series[$key] = [$filterValues[array_keys($filterValues)[0]]];
                     } else {
                         //$filterValues['*'] = 'Tutte le categ.';
                         $this->seriesContext[$key] = [
                             'value' => '*',
-                            'domainValues' => $filterValues
+                            'domainValues' => $filterValues,
+                            'cardinalita' => '*'
                         ];
+                        $this->series[$key] = array_keys($filterValues);
                     }
-                }
-                if (substr($query, 0, 2) == "*-") {
+                } else if (substr($query, 0, 2) == "*-") {
                     $selectValue = substr($query, 2);
+                    //echo "$selectValue ";
                     //$this->filters[$key] = $selectValue;
                     $this->series[$key] = explode(",", $selectValue);
                     $this->seriesContext[$key] = [
-                        'value' => $selectValue,
-                        'domainValues' => $filterValues
+                        'value' => explode(",", $selectValue), //$selectValue,
+                        'domainValues' => $filterValues,
+                        'cardinalita' => '*'
                     ];
                 }
                 continue;
@@ -433,37 +444,38 @@ class ChartData
             if (substr($query, 0, 1) == "?") {
                 if ($query == '?') {// i valori del filtro non possono essere sommate prendo il primo valore valido del filtro
                     $this->seriesContext[$key] = [
-                        'value' => array_keys($filterValues)[0],
-                        'domainValues' => $filterValues
+                        'value' => [array_keys($filterValues)[0]],
+                        'domainValues' => $filterValues,
+                        'cardinalita' => '?'
                     ];
-                    $this->series[$key] = $filterValues[array_keys($filterValues)[0]];
-                }
-                if (substr($query, 0, 2) == "?-") {
-                    $selectValue = substr($query, 2);
-                    $this->filtersContext[$key] = [
+                    $this->series[$key] = [ $filterValues[array_keys($filterValues)[0]] ];
+                } else if (substr($query, 0, 2) == "?-") {
+                    $selectValue = [substr($query, 2)];
+                    $this->seriesContext[$key] = [
                         'value' => $selectValue,
-                        'domainValues' => $filterValues
+                        'domainValues' => $filterValues,
+                        'cardinalita' => '?'
                     ];
-                    $this->filters[$key] = $selectValue;
+                    $this->series[$key] = $selectValue;
                 }
             } else {
-                //$this->series[$key] = $query;
                 $this->series[$key] = explode(",", $query);
-//                echo print_r($this->series[$key],true) ."\n";
-//                die('query' . $query);
             }
         }
-//        echo print_r($this->series,true) ."\n";
-//        die();
     }
 
 
     protected function _matchFilter($values)
     {
         foreach ($this->filters as $keyFilter => $filter) {
-            if ($values[$keyFilter] != $filter)
-                if (strcasecmp(trim($values[$keyFilter]), trim($filter)) != 0)
+            if (is_array($filter)) {
+                if (!in_array($values[$keyFilter],$filter))
                     return false;
+            } else {
+                if ($values[$keyFilter] != $filter)
+                    if (strcasecmp(trim($values[$keyFilter]), trim($filter)) != 0)
+                        return false;
+            }
         }
         return true;
     }
