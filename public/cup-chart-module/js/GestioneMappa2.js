@@ -269,20 +269,21 @@ var commonMap = {
     valueFormat(value) {
         var that = this;
         var val = value;
-        var decimali = that.data.extra.decimali;
-        switch (that.data.extra.tipo_valore) {
+        var extra = that.data.extra;
+        var decimali = extra.decimali;
+        switch (extra.tipo_valore) {
             case 'percentuale':
                 val =  value.toFixed(decimali);
                 break;
             default:
-                if (that.data.extra.tipo == 'integer') {
+                if (extra.tipo == 'integer') {
                     val = Number(value).toLocaleString("it-IT", {minimumFractionDigits: 0,maximumFractionDigits:0});
                 } else
                     val = Number(value).toLocaleString("it-IT", {minimumFractionDigits: decimali,maximumFractionDigits:decimali});
                 break;
         }
-        var formatted = that.data.extra.prefisso?that.data.extra.prefisso+' ':'';
-        formatted += (that.data.extra.suffisso?val+ ' ' + that.data.extra.suffisso:val);
+        var formatted = extra.prefisso?extra.prefisso+' ':'';
+        formatted += (extra.suffisso?val+ ' ' +extra.suffisso:val);
         return formatted;
         //return that.data.extra.suffisso val + ' ' + that.data.extra.suffisso;
     },

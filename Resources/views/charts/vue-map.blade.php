@@ -242,9 +242,9 @@
                     that.gMap.showMap();
                     that.gMap.map.on('load', () => {
                         that.load();
-                        if (data.showTitle) {
+                        //if (data.showTitle) {
                             jQuery('#'+that.title_id).removeClass('d-none');
-                        }
+                        //}
                     })
                 },100)
 

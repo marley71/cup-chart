@@ -5,11 +5,12 @@
 {{--            <div class="col-12">--}}
 {{--                <h4>@{{ description }}</h4>--}}
 {{--            </div>--}}
-            <div class="col-12 col-lg-9 mb-3">
-                <div class="row" v-if="Object.keys(context).length > 0">
-                    <div class="col-6" v-for="(ctx,key) in context">
+            <div class="col-12  mb-3" :class="Object.keys(seriesContext).length > 0?'col-lg-9':'col-lg-12'">
+                <div class="row" v-if="Object.keys(filtersContext).length > 0">
+                    <div class="col-6" v-for="(ctx,key) in filtersContext">
                         <div>@{{key}}</div>
-                        <select class="form-control" :name="key" v-on:change="changeContext($event)">
+                        <select class="form-control" :name="key" v-model="filters[key]" v-on:change="changeMisura($event)"
+                                filtro-type="left" :multiple="isMultidimensionale('left',key)">
                             <option v-for="(label,keyLabel) in ctx.domainValues" :value="keyLabel">@{{label}}</option>
                         </select>
                     </div>
@@ -18,7 +19,7 @@
                 <div class="row">
                     <div class="col-12 bg-white shadow-primary-xs rounded p-2 ">
 
-                        <div :id="chart_id" class="h--500 w-100 rounded">
+                        <div :id="chart_id" class="w-100 rounded">
 
                         </div>
 
@@ -28,30 +29,52 @@
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-lg-3 d-flex flex-column">
-                <div class="" v-if="Object.keys(seriesContext).length > 0">
+            <div v-if="Object.keys(seriesContext).length > 0" class="col-12 col-lg-3 d-flex flex-column" >
+                <div class="" >
                     <h6>Mostra</h6>
                     <ul class="list-group rounded overflow-auto">
 
-                        <li v-for="(serie,serieName) in seriesContext" class="list-group-item pt-3 pb-3" :key="serieName">
+                        <li v-for="(serieContext,serieName) in seriesContext" class="list-group-item pt-3 pb-3" :key="serieName">
                             <h6>@{{serieName}}</h6>
-                            <div class="d-flex" v-for="(serieLabel,serieValue) in serie.domainValues">
+                            <template v-if="isMultidimensionale('top',serieName)">
+                                <div class="d-flex" v-for="(serieLabel,serieValue) in serieContext.domainValues">
 
-                                <div class="badge badge-success badge-soft badge-ico-sm rounded-circle float-start"></div>
+                                    <div class="badge badge-success badge-soft badge-ico-sm rounded-circle float-start"></div>
 
-                                <label class="form-radio form-radio-success">
-                                    <input type="radio" :serie-name="serieName" :value="serieValue" v-model="serie.value"  v-on:change="changeMisura($event)">
-                                    <i></i> <img src="">
-                                </label>
+                                    <label class="form-check form-check-success">
+                                        <input type="checkbox" :name="serieName"  :value="serieValue"  v-on:change="changeMisura($event)" v-model="series[serieName]" filtro-type="top">
+                                        <i></i> <img src="">
+                                    </label>
 
 
-                                <div class="pl--12">
-                                    <p class="text-dark font-weight-medium m-0">
-                                        @{{serieLabel}}
-                                    </p>
+                                    <div class="pl--12">
+                                        <p class="text-dark font-weight-medium m-0">
+                                            @{{serieLabel}}
+                                        </p>
+                                    </div>
+
                                 </div>
+                            </template>
+                            <template v-else>
+                                <div class="d-flex" v-for="(serieLabel,serieValue) in serieContext.domainValues">
 
-                            </div>
+                                    <div class="badge badge-success badge-soft badge-ico-sm rounded-circle float-start"></div>
+
+                                    <label class="form-radio form-radio-success">
+                                        <input type="radio" :serie-name="serieName" :value="serieValue" v-model="series[serieName]"  v-on:change="changeMisura($event)" :filtro-type="top">
+                                        <i></i> <img src="">
+                                    </label>
+
+
+                                    <div class="pl--12">
+                                        <p class="text-dark font-weight-medium m-0">
+                                            @{{serieLabel}}
+                                        </p>
+                                    </div>
+
+                                </div>
+                            </template>
+
                         </li>
 
                     </ul>
@@ -78,7 +101,6 @@
 
 <script>
     function vueChartInit(container,data) {
-        console.log('vueChartInit',data);
         //var c = new Vue.options.components['vue-map']();
         var id = 'vue-chart-' + Math.floor(Math.random() * 10000);
         //console.log('conatiner',container);//jQuery(container).length,jQuery(container).html())
@@ -99,14 +121,19 @@
                     type : 'chart',
                     comuni: [],
                     description:'',
-                    filters : data.filters || {},
+                    filters : {},
+                    series: {},
                     json : {},
                     name : null,
                     chart_id : id + '_chart',
                     colors : {},
-                    context : {},
+                    filtersContext : {},
                     seriesContext : {},
                     primaVolta : true,
+                    multidimensionale : true,
+                    token_split_filters:'###',
+                    cardinalitaSerie:{},
+                    cardinalitaFiltri:{},
                 }
                 var mergedData = Object.assign(defaultData,d);
                 console.log('mergedData',mergedData)
@@ -132,8 +159,16 @@
                             graphicData[kv+1].push(parseFloat(json.result.values[k][keyValues[kv]].total));
                         }
                     }
+                    var height = 600;
+                    if (that.chartType =='chart-o') {
+                        var len = graphicData.length;
+                        if (len > 7){
+                            height += (len-7)*25;
+                        }
+                        console.log('len',len,height);
+                    }
 
-                    var height = jQuery('#'+that.chart_id).css('height');
+                    jQuery('#'+that.chart_id).css('height',height+'px');
 
                     function __drawVisualization() {
                         // Some raw data (not necessarily accurate)
@@ -143,19 +178,6 @@
                         var topSeries = json.result.topSeries;
                         console.log(topSeries,leftSeries,'graphicData',graphicData)
                         var data = google.visualization.arrayToDataTable(graphicData);
-
-
-
-                        // var options = {
-                        //     title: title,
-                        //     hAxis: {title: hAxis},
-                        //     vAxis: {title: vAxis},
-                        //     legend: 'none',
-                        //     trendlines: { 0: {} },    // Draw a trendline for data series 0.
-                        //     height:height
-                        // };
-
-
 
                         var domContainer = jQuery('#'+that.chart_id)[0];
                         //that.jQe(that.container).css('width',w).css('height',h);
@@ -213,19 +235,26 @@
 
 
                         switch (json.result.extra.tipo_valore) {
-                            case 'percentuale':
-                            case 'valore':
+                            // case 'percentuale':
+                            // case 'valore':
+                            default:
                                 var pattern = '0.';
-                                if (json.result.extra.tipo=='integer' || json.result.extra.decimali === 0) {
-                                    pattern = '0'
+                                var extra = json.result.extra;
+                                if (extra.tipo_valore == 'percentuale') {
+                                    pattern = pattern.padEnd(2+extra.decimali,'0');
                                 } else {
-                                    pattern = pattern.padEnd(2+json.result.extra.decimali,'0');
+                                    if (extra.tipo=='integer' || extra.decimali === 0) {
+                                        pattern = '0'
+                                    } else {
+                                        pattern = pattern.padEnd(2+extra.decimali,'0');
+                                    }
                                 }
+
                                 //alert(pattern + json.result.extra.decimali);
                                 var formatter = new google.visualization.NumberFormat({
                                     pattern: pattern,
-                                    suffix: json.result.extra.suffisso,
-                                    prefix : json.result.extra.prefisso,
+                                    suffix: extra.suffisso,
+                                    prefix : extra.prefisso,
                                 });
 
                                 // format number columns
@@ -237,6 +266,8 @@
                         chart.draw(data, options);
 
                         that.imageLink = chart.getImageURI();
+                        // plugin multiselect
+                        that.enableMultiSelect();
                     }
 
 
@@ -245,38 +276,29 @@
                 },
                 load() {
                     var that = this;
-                    //
-                    // var contextValue = {};
-                    // for (var k in that.context) {
-                    //     contextValue[k] = jQuery('select[name="'+k+'"]').val();
-                    // }
-
-                    console.log('load distribuzione filters',that.filters,'series',that.series);
-                    jQuery.get('/distribuzione/'+that.resourceId+'/'+that.resourceType,{filters : that.filters,series:that.series},function (json) {
+                    console.log(that.primaVolta,'load distribuzione filters',that.filters,'series',that.series);
+                    var series = that.topContext;
+                    var filters = that.leftContext;
+                    if (! that.primaVolta) {
+                        series = that.getSelectedSeries();
+                        filters = that.getSelectedFilters();
+                        // TODO gestione filtri
+                    }
+                    console.log('load',series,filters);
+                    jQuery.get('/distribuzione/'+that.resourceId+'/'+that.resourceType,{filters : filters,series:series},function (json) {
                         if (json.error) {
                             console.error('errore',json.msg);
                             return ;
                         }
                         that.json = json;
-                        if (that.primaVolta) {
-                            that.description = that.titolo?that.titolo:that.json.result.description;
-                            //jQuery.extend( true,that.context , (that.json.result.context || {}),true);
-                            that.context = that.json.result.context || {};
-                            that.seriesContext =  json.result.seriesContext || {}; //Object.keys(that.json.result.values);
-                            //that.series = Object.keys(that.json.result.values);
-                            //that.serie = that.series[0];
-                            //that.gMap.colors = schema_colori[that.schemaColor];
-                            that.primaVolta = false;
-                            //TODO da migliorare
-                            setTimeout(function () {
-                                var ctx = that.context;
-                                for (var k in ctx) {
-                                    jQuery('[name="' + k +'"').val(ctx[k].value);
-                                }
-                            },500)
+                        console.log('ricevuto',json);
 
+                        if (that.primaVolta) {
+                            that.initObjectData();
                         }
                         that.showChart();
+
+
                     }).fail(function (e) {
                         console.error(e);
                     })
@@ -291,12 +313,22 @@
                 },
                 changeMisura(event) {
                     var that = this;
-                    var target = event.target;
-                    var serieName = jQuery(event.target).attr('serie-name');
-                    console.log('serie name',serieName,target.value);
-                    //that.context[target.name] = target.value;
-                    that.series[serieName] = target.value;
+                    // evito che l'ultima checkbox venga uncheccata
+                    var serieName = jQuery(event.target).attr('name');
+                    var type = jQuery(event.target).attr('filtro-type');
+                    console.log('changeMisura',type,serieName);
+                    if (type == 'top') {
+                        if (that.isMultidimensionale(type,serieName)) {
+                            var len = jQuery("input[name='" +  serieName + "']:checked").length;
+                            if (len === 0) {
+                                jQuery(event.target).prop('checked', true);
+                                return ;
+                            }
+                        }
+                    }
+
                     that.load();
+
                 },
                 /**
                  * in caso la tabella excel ha piu' di una serie left va splittato il valore usando il separatoreLeft
@@ -315,16 +347,32 @@
                 },
                 getSelectedSeries() {
                     var that = this;
-                    // nei casi iniziali i valori presenti nelle serie potrebbero non corrispondere a quelli che si vedono in video
-                    var s = that.series || {};
-                    for (var k in that.series) {
-                        var value = that.series[k];
-                        if (value.substring(0,1) == '*' || value.substring(0,1) == '?') {
-                            s[k] = jQuery(that.$el).find('input[serie-name="' + k +'"]:checked').val()
-                        } else {
-                            s[k] = value;
-                        }
+                    var s = {
+
                     }
+                    for (var k in that.series) {
+                        if (that.isMultidimensionale('top',k))
+                            s[k] = that.series[k].join(',');
+                        else
+                            s[k] = that.series[k]
+                    }
+
+                    console.log('s',s,'series');
+                    return s;
+                },
+                getSelectedFilters() {
+                    var that = this;
+                    var s = {
+
+                    }
+                    for (var k in that.filters) {
+                        if (that.isMultidimensionale('left',k))
+                            s[k] = that.filters[k].join(',');
+                        else
+                            s[k] = that.filters[k]
+                    }
+
+                    console.log('s',s,'filters');
                     return s;
                 },
                 getNote() {
@@ -333,6 +381,81 @@
                     }
                     return [];
                 },
+
+                isMultidimensionale(type,keyName) {
+                    var that = this;
+                    var ctx = '';
+
+                    switch (type) {
+                        case 'top':
+                            ctx =  that.cardinalitaSerie[keyName]?that.cardinalitaSerie[keyName]:'';
+                            break;
+                        case 'left':
+                            ctx =  that.cardinalitaFiltri[keyName]?that.cardinalitaFiltri[keyName]:'';
+                            break;
+                    }
+                    //console.log('ctx',ctx);
+                    var multi = (ctx.indexOf('*') >= 0)
+                    //console.log('type',type,keyName,'ismulti',multi);
+                    return multi;
+                },
+                initObjectData() {
+                    var that = this;
+                    var json = that.json;
+                    that.description = that.titolo?that.titolo:json.result.description;
+                    that.filtersContext = json.result.filtersContext || {};
+                    that.seriesContext = json.result.seriesContext || {}; //Object.keys(that.json.result.values);
+                    for (var k in that.seriesContext) {
+                        that.cardinalitaSerie[k] = that.seriesContext[k].cardinalita;
+                    }
+                    for (var k in that.filtersContext) {
+                        that.cardinalitaFiltri[k] = that.filtersContext[k].cardinalita;
+                    }
+                    that.series = {};
+                    // topContext e leftContext sono i filtri che mi arrivano dall'attributo del div
+                    for (var k in that.topContext) {
+                        console.log('k')
+                        if (that.isMultidimensionale('top',k))
+                            that.series[k] = json.result.currentSeries[k]
+                        else
+                            that.series[k] = json.result.currentSeries[k][0]
+                    }
+                    for (var k in that.leftContext) {
+                        console.log('k')
+                        if (that.isMultidimensionale('left',k))
+                            that.filters[k] = json.result.currentFilters[k]
+                        else
+                            that.filters[k] = json.result.currentFilters[k][0]
+                    }
+                    that.primaVolta = false;
+                },
+                enableMultiSelect() {
+                    var that = this;
+                    for (var k in that.leftContext) {
+                        if (that.isMultidimensionale('left',k)) {
+                            jQuery('select[name="' + k + '"]').addClass('d-none');
+                            var key = k;
+                            jQuery('select[name="' + key + '"]').multiselect({
+                                onChange: function(option, checked, select) {
+                                    console.log('key',key,checked,select,option.val());
+                                    if (checked)
+                                        that.filters[key].push(option.val());
+                                    else {
+                                        var ind = that.filters[key].indexOf(option.val());
+                                        if (ind >= 0) {
+                                            that.filters[key].splice(ind,1);
+                                        }
+                                    }
+
+                                    //var selectedOptions = $('select[name="' + key + '"] option:selected');
+                                    //console.log('Loaddddd',selectedOptions)
+                                    that.load();
+                                }
+                            });
+                        }
+                    }
+
+                }
             }
         })
         return vChart;

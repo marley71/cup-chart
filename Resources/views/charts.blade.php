@@ -8,6 +8,9 @@
 <script src='/cup-chart-module/js/GestioneMappa2.js'></script>
 <script src="/cup-chart-module/js/GestioneGrafici.js"></script>
 
+<script src="https://unpkg.com/bootstrap-multiselect@1.1.0/dist/js/bootstrap-multiselect.js"></script>
+<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+
 <script>
     jQuery(function () {
         jQuery('[cup-grafico]').each(function () {

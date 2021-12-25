@@ -80,6 +80,21 @@
                     that.loading = false;
                     setTimeout(function () {
                         that.showTable();
+                        var jTable = jQuery('#'+that.chart_id).find('table');
+                        console.log('jTable','#'+id,jTable.length);
+                        // aggiungo padding alle colonne dei metadati
+
+                        var cols = Object.keys(that.json.result.leftSeries).length;
+                        for (var c=1;c<=cols;c++) {
+                            //console.log('c',c,jTable.find('td:nth-child(' + c +')').length);
+                            jTable.find('td:nth-child(' + c +')').css('padding-right','15px');
+                            jTable.find('th:nth-child(' + c +')').css('padding-right','15px');
+                            //jTable.find('td:nth-child(' + c +')').css('border-right','1px solid #000');
+                        }
+
+
+                        // jTable.find('td').css('border-right','1px solid #000')
+                        // jTable.find('td').css('padding-right','4px')
                     },200)
 
                 });
@@ -132,15 +147,25 @@
                                 //console.log('getleftvalues',that._getLeftValues(k))
                                 graphicData.push(that._getLeftValues(k))
                             }
-                            if (json.result.extra.tipo === 'integer') {
-                                graphicData[rowCount].push(parseInt(val));
-                            } else {
-                                //val = parseFloat(val.toFixed(json.result.extra.decimali) );
-                                val = val.toFixed(json.result.extra.decimali);
-                                //console.log('val',val,json.result.extra.decimali)
-                                graphicData[rowCount].push(val);
+                            var extra = json.result.extra;
 
+
+                            if (extra.tipo_valore == 'percentuale') {
+                                val = val.toFixed(extra.decimali);
+                                graphicData[rowCount].push(val);
+                            } else {
+                                if (json.result.extra.tipo === 'integer') {
+                                    graphicData[rowCount].push(parseInt(val));
+                                } else {
+                                    //val = parseFloat(val.toFixed(json.result.extra.decimali) );
+                                    val = val.toFixed(json.result.extra.decimali);
+                                    //console.log('val',val,json.result.extra.decimali)
+                                    graphicData[rowCount].push(val);
+
+                                }
                             }
+
+
                             //graphicData[rowCount].push(parseFloat(parseFloat(values[ keys[i] ][k]['total']).toFixed(2)))
                             rowCount++;
                         }
@@ -149,14 +174,19 @@
                     //console.log('graphicData',graphicData);
                     var columns = [];
                     for (var key in json.result.leftSeries) {
-                        columns.push({title:key,orderable: false})
+                        columns.push({
+                            title:key,
+                            orderable: false,
+                            //"width": 500
+                        })
                     }
                     //var columns = [{title:'infered filters'}];
                     for (var  i in keys) {
                         columns.push({
                             title : keys[i],
                             type : 'num',
-                            orderable: true
+                            orderable: true,
+                            //"width": 500
                         })
                         if (keys[i] == 'totale')
                             columns[columns.length-1].orderable = true;
