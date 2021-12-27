@@ -260,6 +260,7 @@ class SplitStrictTablesService
             'decimali' => 2,
             'filtri_top' => [],
             'filtri_left' => [],
+            'grafico' => '',
         ];
         if ($this->getCalcValue($sheet->getCell($coordinate))) {
             // non c'e' la riga vuota
@@ -291,6 +292,7 @@ class SplitStrictTablesService
                         $letter++;
                         //$coordinate = $letter.$row;
                         $val = $this->getCalcValue($sheet->getCell($letter.$row));
+                        Log::info('filtri_left ' . $val);
                         if ($val)
                             $extra[$key][] = $val;
                     } while($val);
@@ -305,7 +307,11 @@ class SplitStrictTablesService
                     $val = $this->getCalcValue($sheet->getCell($letter.$row));
                     $extra[$key] = $val;
                     break;
-
+                case 'grafico':
+                    $letter++;
+                    $val = $sheet->getCell($letter.$row)->getValue();
+                    $extra[$key] = $val;
+                    break;
                 default:
                     Log::notice("$key - key non trovata ");
                     $letter++;

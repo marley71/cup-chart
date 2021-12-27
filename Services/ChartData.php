@@ -68,16 +68,24 @@ class ChartData
         $result = [];
         //$this->_setFilters();
         //$this->_setSeries();
+        // prendo sempre tutti i filtri
+
 
         //valori colonne e il loro offset all'interno del vettore values
         $series = $this->_getKeys($this->data['series']);
         $topSeries = $series['top'];
         $leftSeries = $series['left'];
+        // prendo sempre tutti i filtri
 
+        foreach ($topSeries as $key => $top) {
+            $this->series[$key] = array_keys($top['values']);
+        }
+        foreach ($leftSeries as $key => $left) {
+            $this->filters[$key] = array_keys($left['values']);
+        }
 
-        $cartesian = $this->_getSeries($topSeries);
+        $cartesian = $this->_getSeries($topSeries,true);
         $cartesianAll = $this->_getSeries($topSeries, true);
-
 
         //print_r($cartesian);
 //        print_r($cartesianAll);
@@ -93,15 +101,15 @@ class ChartData
 
         foreach ($this->data['values'] as $item) {
 
-//            if (!$this->_matchFilter($item))
-//                continue;
+            if (!$this->_matchFilter($item))
+                continue;
 //            print_r($cartesian);
 //            die();
 
             foreach ($cartesian as $subKeys) {
-//                if (!$this->_matchSerieInValues($subKeys,$item)) {
-//                    continue;
-//                }
+                if (!$this->_matchSerieInValues($subKeys,$item)) {
+                    continue;
+                }
 
                 $subKey = implode(' ', $subKeys);
                 if (!Arr::exists($values, $subKey)) {
@@ -341,7 +349,8 @@ class ChartData
         $result['topSeries'] = $topSeries;
         $result['extra'] = Arr::get($this->data, 'extra', []);
         $result['extra']['tipo'] = $isInt ? 'integer' : 'float';
-
+        $result['currentFilters'] = $this->filters;
+        $result['currentSeries'] = $this->series;
 
         return $result;
     }

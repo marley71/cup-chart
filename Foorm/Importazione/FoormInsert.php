@@ -2,6 +2,7 @@
 
 
 use App\Models\GraficoTabella;
+use App\Services\CreaGrafico;
 use Gecche\Cupparis\App\Foorm\Base\FoormInsert as BaseFoormInsert;
 use GuzzleHttp\Client;
 use Illuminate\Support\Arr;
@@ -9,6 +10,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Modules\CupChart\Services\GeneraGrafico;
 
 class FoormInsert extends BaseFoormInsert
 {
@@ -81,7 +83,9 @@ class FoormInsert extends BaseFoormInsert
             '--strict' => 1
         ]);
         Artisan::call('crea-importazione-json',['id' => $this->model->getKey()]);
-        GraficoTabella::creaGrafico($this->model->menu_id,$this->model->getKey());
+        $graf = new GeneraGrafico();
+
+        $graf->creaGrafico($this->model->getKey());
         return $saved;
     }
 
