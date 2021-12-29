@@ -95,6 +95,7 @@ class ChartData
 //        $rowIndexKeys = array_keys($rowKeys);
         $values = [];
         $separtoreLeft = config('cupparis-chart.separatore_left');
+        $separtoreTop = config('cupparis-chart.separatore_top');
         $maxValue = 0;
         $minValue = 0;
         $isInt = true;
@@ -111,7 +112,7 @@ class ChartData
                     continue;
                 }
 
-                $subKey = implode(' ', $subKeys);
+                $subKey = implode($separtoreTop, $subKeys);
                 if (!Arr::exists($values, $subKey)) {
                     $values[$subKey] = [];
                 }
@@ -151,6 +152,7 @@ class ChartData
         $result['leftSeries'] = $leftSeries;
         $result['topSeries'] = $topSeries;
         $result['separatoreLeft'] = $separtoreLeft;
+        $result['separatoreTop'] = $separtoreTop;
         $result['extra'] = Arr::get($this->data, 'extra', []);
         $result['extra']['tipo'] = $isInt ? 'integer' : 'float';
         $result['min'] = $minValue < 0 ? $minValue : 0;
