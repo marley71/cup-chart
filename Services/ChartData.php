@@ -44,6 +44,7 @@ class ChartData
                     $this->multidimensionale = false;
                     return $this->_mapData();
                 case 'chart':
+                case 'pie':
                     return $this->_chartData();
                 case 'table':
                     return $this->_tableData();

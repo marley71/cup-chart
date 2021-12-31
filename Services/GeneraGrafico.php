@@ -93,23 +93,6 @@ class GeneraGrafico
         $cupSeries = '';
         $cupConf = 'chartConf';
         $cupTitle = $tabella->nome;
-        //print_r($mDot);
-//        $stop = false;
-//        // series automatiche
-//        $i = 0;
-//        Log::info("$cupGrafico\n----analizzo series---");
-//        while (!$stop) {
-//            $topName = strtolower(Arr::get($mDot, "inferredSeries.top.$i.name"));
-//            if (!$topName) {
-//                $stop = true;
-//                continue;
-//            }
-//            $cupSeries .= ($cupSeries?$token_split_filters:'') . $topName. ':*';
-//            $i++;
-//        }
-        // filters automatici
-        $i = 0;
-        $stop = false;
         $extra = $metaData['extra'];
         $grafico = Arr::get($extra,'grafico','');
         $leftKeys = $this->_getLeftKeys($metaData);
@@ -121,10 +104,6 @@ class GeneraGrafico
             case 'geografico':
                 $cupType = 'map';
                 $cupChartType = $this->_mapType($leftKeys);
-//                // forzo tutte le colonne a cardinalita' 1;
-//                for ($c=0;$c<count($topKeys);$c++) {
-//                    $cupSeries .= ($cupSeries?$token_split_filters:'') . $topKeys[$c]. ':?';
-//                }
                 $cupSeries = $this->_getDefaultSeries($extra,$topKeys,'?');
                 $cupColors = 'gradiente_blu';
                 $cupFilters = $this->_getDefaultFilters($extra,$leftKeys);
@@ -144,7 +123,26 @@ class GeneraGrafico
                 $cupSeries = $this->_getDefaultSeries($extra,$topKeys);
                 $cupFilters = $this->_getDefaultFilters($extra,$leftKeys);
                 break;
+            case 'torta':
+                $cupType = 'pie';
+                $cupSeries = $this->_getDefaultSeries($extra,$topKeys,'?');
+                $cupFilters = $this->_getDefaultFilters($extra,$leftKeys);
+                break;
             default:
+                $firstLeft = strtolower($leftKeys[0]);
+                switch ($firstLeft) {
+                    case 'anno':
+                        $cupChartType = "line";
+                        break;
+                    default:
+                        if ($this->_isMap($leftKeys)) {
+                            $cupType = 'map';
+                            $cupChartType = $this->_mapType($leftKeys);
+                            $cupColors = 'gradiente_blu';
+                        }
+                        break;
+
+                }
                 $cupSeries = $this->_getDefaultSeries($extra,$topKeys);
                 $cupFilters = $this->_getDefaultFilters($extra,$leftKeys);
                 break;
@@ -291,7 +289,7 @@ class GeneraGrafico
             'regioni','province','comuni','nazioni'
         ];
         foreach ($leftKeys as $key) {
-            if (in_array($key,$mapKeys))
+            if (in_array(strtolower($key),$mapKeys))
                 return true;
         }
         return false;
@@ -310,7 +308,7 @@ class GeneraGrafico
         ];
         foreach ($leftKeys as $key) {
             foreach ($mapType as $type => $items) {
-                if (in_array($key,$items))
+                if (in_array(strtolower($key),$items))
                     return $type;
             }
         }
