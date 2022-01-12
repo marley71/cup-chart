@@ -129,6 +129,12 @@ class GeneraGrafico
                 $cupFilters = $this->_getDefaultFilters($extra,$leftKeys);
                 break;
             default:
+                if (count($leftKeys) == 0) {
+                    Log::warning('leftKeys count 0 ' . $tabella->id  . " " . $tabella->nome);
+                    $cupSeries = $this->_getDefaultSeries($extra,$topKeys);
+                    $cupFilters = $this->_getDefaultFilters($extra,$leftKeys);
+                    break;
+                }
                 $firstLeft = strtolower($leftKeys[0]);
                 switch ($firstLeft) {
                     case 'anno':
