@@ -272,7 +272,7 @@ class SplitStrictTablesService
         while (!$finito) {
             $letter = $metadataColumn;
             //$coordinate = $letter.$row;
-            $key = strtolower($this->getCalcValue($sheet->getCell($metadataColumn.$row)));
+            $key = trim(strtolower($this->getCalcValue($sheet->getCell($metadataColumn.$row))));
             if (!$key) {
                 $finito = true;
                 continue;
