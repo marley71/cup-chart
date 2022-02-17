@@ -261,6 +261,7 @@ class SplitStrictTablesService
             'filtri_top' => [],
             'filtri_left' => [],
             'grafico' => '',
+            'tipo' => 'integer'
         ];
         if ($this->getCalcValue($sheet->getCell($coordinate))) {
             // non c'e' la riga vuota
@@ -298,6 +299,7 @@ class SplitStrictTablesService
                     } while($val);
                     break;
                 case 'tipo_valore':
+                case 'tipo':
                 case 'suffisso':
                 case 'prefisso':
                 case 'decimali':

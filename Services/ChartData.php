@@ -155,7 +155,7 @@ class ChartData
         $result['separatoreLeft'] = $separtoreLeft;
         $result['separatoreTop'] = $separtoreTop;
         $result['extra'] = Arr::get($this->data, 'extra', []);
-        $result['extra']['tipo'] = $isInt ? 'integer' : 'float';
+        //$result['extra']['tipo'] = $isInt ? 'integer' : 'float';
         $result['min'] = $minValue < 0 ? $minValue : 0;
         // TODO questo potrebbe essere configurabile
         //$result['max'] = Arr::get($result['extra'],'tipo_valore',null) == 'percentuale'?100:$maxValue;
@@ -245,7 +245,7 @@ class ChartData
         $result['topSeries'] = $topSeries;
         $result['separatoreLeft'] = $separtoreLeft;
         $result['extra'] = Arr::get($this->data, 'extra', []);
-        $result['extra']['tipo'] = $isInt ? 'integer' : 'float';
+        //$result['extra']['tipo'] = $isInt ? 'integer' : 'float';
         $result['min'] = $minValue < 0 ? $minValue : 0;
         // TODO questo potrebbe essere configurabile
         //$result['max'] = Arr::get($result['extra'],'tipo_valore',null) == 'percentuale'?100:$maxValue;
@@ -351,7 +351,7 @@ class ChartData
         $result['leftSeries'] = $leftSeries;
         $result['topSeries'] = $topSeries;
         $result['extra'] = Arr::get($this->data, 'extra', []);
-        $result['extra']['tipo'] = $isInt ? 'integer' : 'float';
+        //$result['extra']['tipo'] = $isInt ? 'integer' : 'float';
         $result['currentFilters'] = $this->filters;
         $result['currentSeries'] = $this->series;
 
@@ -418,7 +418,11 @@ class ChartData
         $queryParams = Arr::get($this->params, 'series', []);
         $this->series = [];
         $this->seriesContext = [];
+//        print_r($queryParams);
+//        print_r($this->data['series']);
+
         foreach ($queryParams as $key => $query) {
+            $key = strtolower($key);
             $filterValues = $this->data['series'][$key]['values'];
             if (substr($query, 0, 1) == "*") {
                 if ($query == '*') { // il filtro e' tutto quindi i valori verranno sommati come se non fosse definito

@@ -155,44 +155,6 @@ class GeneraGrafico
 
         }
 
-
-
-
-
-
-
-//        while (!$stop) {
-//            $leftName = strtolower(Arr::get($mDot, "inferredSeries.left.$i.name"));
-//            if (!$leftName) {
-//                $stop = true;
-//                continue;
-//            }
-//            if ($leftName == 'comune') {
-//                $cupType = 'map';
-//                $cupChartType = 'comuni';
-//                $cupColors = 'gradiente_blu';
-//                Log::info("trovato comune");
-//            } else if ($leftName == 'provincia') {
-//                $cupType = 'map';
-//                $cupChartType = 'province';
-//                $cupColors = 'gradiente_blu';
-//                Log::info("trovata provincia");
-//            } else if ($leftName == 'regione') {
-//                $cupType = 'map';
-//                $cupChartType = 'regioni';
-//                $cupColors = 'gradiente_blu';
-//                Log::info("trovata regione");
-//            } else if ($leftName == 'nazione') {
-//                $cupType = 'map';
-//                $cupChartType = 'nazioni';
-//                $cupColors = 'gradiente_blu';
-//                Log::info("trovata nazione");
-//            } else if ($leftName == 'anno') {
-//                $cupChartType = 'line';
-//                Log::info("trovato anno");
-//            }
-//            $i++;
-//        }
         if ($cupType == 'map')
             $cupConf = 'mapConf';
 
