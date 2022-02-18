@@ -22,6 +22,12 @@ class FoormEdit extends BaseFoormEdit
     ];
 
 
+    public function finalizeData($finalizationFunc = null) {
+        parent::finalizeData($finalizationFunc);
+        $this->formData['file'] = $this->model->getResourceAttribute();
+    }
+
+
     public function filterPredefinedValuesFromInput($value)
     {
 
