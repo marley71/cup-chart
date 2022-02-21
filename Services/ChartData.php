@@ -372,6 +372,7 @@ class ChartData
         $this->filters = [];
         $this->filtersContext = [];
         foreach ($queryParams as $key => $query) {
+            $key = strtolower($key);
             $filterValues = $this->data['series'][$key]['values'];
             if (substr($query, 0, 1) == "*") {
 
