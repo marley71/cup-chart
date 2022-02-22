@@ -179,7 +179,7 @@ class GeneraGrafico
             'cup-conf' => $cupConf,
         ];
 
-        Log::info('default chart Attribute ' . print_r($attributes,true));
+        Log::info($tabella->getKey() . ' default chart Attribute ' . print_r($attributes,true));
         return $attributes;
     }
 
