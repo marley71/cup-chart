@@ -1,5 +1,5 @@
-<template id="vue-chart-template">
-    <div class="container-fluid d-flex flex-column ">
+<template id="vue-pie-template">
+    <div class="container-fluid d-flex flex-column">
         <hr class="w-100 mb--20"/>
         <div class="row">
 {{--            <div class="col-12">--}}
@@ -106,14 +106,14 @@
 </template>
 
 <script>
-    function vueChartInit(container,data) {
+    function vuePieInit(container,data) {
         //var c = new Vue.options.components['vue-map']();
         var id = 'vue-chart-' + Math.floor(Math.random() * 10000);
         //console.log('conatiner',container);//jQuery(container).length,jQuery(container).html())
         jQuery(container).attr('id',id)
         var vChart = new Vue({
             el : '#'+id,
-            template : '#vue-chart-template',
+            template : '#vue-pie-template',
             mixins: [GraficiMixin],
             mounted() {
                 var that = this;
@@ -186,56 +186,20 @@
                         var data = google.visualization.arrayToDataTable(graphicData);
 
                         var domContainer = jQuery('#'+that.chart_id)[0];
-                        //that.jQe(that.container).css('width',w).css('height',h);
-                        var googleChartType = {
-                            'chart-o':'BarChart',
-                            'chart' : 'ComboChart',
-                            'line' : 'ComboChart'
-                        }
-                        var chartType = that.chartType;
-                        var vAxis = json.result.extra.tipo_valore;
-                        var hAxis = leftKeys[0] ;
-                        var seriesType = 'bars';
-                        switch (chartType) {
-                            case 'chart-o':
-                                var tmp = vAxis;
-                                vAxis = hAxis;
-                                hAxis = tmp
-                                break;
-                            case 'line':
-                                seriesType = 'line'
-                                break;
-                        }
-                        console.log('google chart type ',googleChartType[chartType],seriesType)
-                        console.log('hAixs',hAxis,'vAx',vAxis);
+
                         var options = {
                             title: title,
-                            vAxis: {
-                                title: vAxis,
-                                minValue : (json.result.min+"")?json.result.min:0
-                            },
-                            hAxis: {
-                                title: hAxis,
-                                //slantedText : true,
-                                slantedTextAngle : 90,
-                                titleTextStyle : {
-                                    bold:true
-                                }
-                            },
-                            seriesType: seriesType,
-                            //curveType : 'function',
-                            //series: {5: {type: 'bar'}},
-                            //width : w,
                             height : height,
-                            colors : schema_colori[that.schemaColor] || schema_colori['default']
-
+                            colors : schema_colori[that.schemaColor] || schema_colori['default'],
+                            is3D: true,  // metterla come opzione charttype
                         };
 
-                        if (json.result.max) {
-                            options.vAxis.maxValue = json.result.max
-                        }
+                        // if (json.result.max) {
+                        //     options.vAxis.maxValue = json.result.max
+                        // }
                         console.log('OPTIONS',options);
-                        var chart = new google.visualization[googleChartType[chartType]](domContainer);
+
+                        var chart = new google.visualization.PieChart(domContainer);
 
                         that.chart = chart;
 
@@ -280,15 +244,6 @@
                     google.charts.load('current', {'packages':['corechart']});
                     google.charts.setOnLoadCallback(__drawVisualization);
                 },
-                // changeContext(event) {
-                //     var that = this;
-                //     var target = event.target;
-                //     console.log('name',target.name,target.value);
-                //     //that.context[target.name] = target.value;
-                //     that.filters[target.name] = target.value;
-                //     that.load();
-                // },
-
                 /**
                  * in caso la tabella excel ha piu' di una serie left va splittato il valore usando il separatoreLeft
                  * @param compactValue
@@ -321,14 +276,13 @@
                     that.series = {};
                     // topContext e leftContext sono i filtri che mi arrivano dall'attributo del div
                     for (var k in that.topContext) {
-                        var key = k.toLowerCase();
-                        console.log('serie',key,'multidimensionale',that.isMultidimensionale('top',key),that.topContext)
-                        if (that.isMultidimensionale('top',key))
-                            that.series[key] = json.result.currentSeries[key]
+                        k = k.toLowerCase();
+                        console.log('serie',k,'multidimensionale',that.isMultidimensionale('top',k),that.topContext)
+                        if (that.isMultidimensionale('top',k))
+                            that.series[k] = json.result.currentSeries[k]
                         else
-                            that.series[key] = json.result.currentSeries[key][0]
+                            that.series[k] = json.result.currentSeries[k][0]
                     }
-                    console.log('OKKKKK')
                     for (var k in that.leftContext) {
                         k = k.toLowerCase();
                         console.log('k',k)

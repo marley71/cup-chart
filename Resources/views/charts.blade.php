@@ -1,12 +1,16 @@
 @include('modules.cup-chart.charts.vue-map')
 @include('modules.cup-chart.charts.vue-chart')
+@include('modules.cup-chart.charts.vue-pie')
 @include('modules.cup-chart.charts.vue-table')
-
+<script>
+    const MAP_BOX_KEY = '{{ env('MAPBOX_KEY') }}';
+</script>
 <script src='/cup-chart-module/js/SchemaColori.js'></script>
 <script src="/cup-chart-module/js/GraficiConfs.js"></script>
 
 <script src='/cup-chart-module/js/GestioneMappa2.js'></script>
 <script src="/cup-chart-module/js/GestioneGrafici.js"></script>
+<script src="/cup-chart-module/js/GraficiMixin.js"></script>
 
 <script src="https://unpkg.com/bootstrap-multiselect@1.1.0/dist/js/bootstrap-multiselect.js"></script>
 <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">

@@ -271,7 +271,7 @@ var commonMap = {
         var val = value;
         var extra = that.data.extra;
         var decimali = extra.decimali;
-        switch (extra.tipo_valore) {
+        switch (extra.tipo_valore.toLowerCase()) {
             case 'percentuale':
                 val =  value.toFixed(decimali);
                 break;

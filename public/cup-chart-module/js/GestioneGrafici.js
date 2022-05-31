@@ -62,6 +62,9 @@ var GestioneGrafici = {
             //     params.gChartType = 'BarChart'
             //     vueChartInit(params.htmlElement,params);
             //     break;
+            case 'pie':
+                grafico = vuePieInit(params.htmlElement,params);
+                break;
             case 'table':
                 //params.gChartType = 'table'
                 grafico = vueTableInit(params.htmlElement,params);
