@@ -30,6 +30,8 @@ class ChartData
     protected $series = [];
     protected $multidimensionale = true;
 
+    protected $mapOptions = [];
+
     public function __construct($data)
     {
         $this->data = $data;
@@ -100,7 +102,7 @@ class ChartData
         $maxValue = 0;
         $minValue = 0;
         $isInt = true;
-
+        $extra = Arr::get($this->data, 'extra', []);
         foreach ($this->data['values'] as $item) {
 
             if (!$this->_matchFilter($item))
@@ -117,27 +119,54 @@ class ChartData
                 if (!Arr::exists($values, $subKey)) {
                     $values[$subKey] = [];
                 }
-
-                $floatValue = floatval($item['value']);
-                $isInt |= $this->isInt($floatValue);
-                $maxValue = $maxValue < $floatValue ? $floatValue : $maxValue;
-                $minValue = $minValue > $floatValue ? $floatValue : $minValue;
-                $rowLabel = [];
-                // TODO riformulare in base ai filtri sulle left...
-                foreach ($leftSeries as $key => $lserie) {
-                    $rowLabel[] = $item[$key];
-                    //$rowLabel .= ($rowLabel?" " . $item[$key]:$item[$key]);
+                $tipo = 'number';
+                if (Arr::exists($extra,'tipo')) {
+                    $tipo = Arr::get($extra,'tipo','number');
                 }
-                $rowLabel = implode($separtoreLeft, $rowLabel);
-                //$rowLabel = 'bo';
+                if ($tipo == 'string') {
+                    $stringValue = $item['value'];
+//                    $isInt |= $this->isInt($floatValue);
+//                    $maxValue = $maxValue < $floatValue ? $floatValue : $maxValue;
+//                    $minValue = $minValue > $floatValue ? $floatValue : $minValue;
+                    $rowLabel = [];
+                    // TODO riformulare in base ai filtri sulle left...
+                    foreach ($leftSeries as $key => $lserie) {
+                        $rowLabel[] = $item[$key];
+                        //$rowLabel .= ($rowLabel?" " . $item[$key]:$item[$key]);
+                    }
+                    $rowLabel = implode($separtoreLeft, $rowLabel);
+                    //$rowLabel = 'bo';
 
-                if (!Arr::exists($values[$subKey], $rowLabel)) {
-                    $values[$subKey][$rowLabel] = [
-                        'label' => $subKey,
-                        'total' => 0
-                    ];
+                    if (!Arr::exists($values[$subKey], $rowLabel)) {
+                        $values[$subKey][$rowLabel] = [
+                            'label' => $subKey,
+                            'total' => ''
+                        ];
+                    }
+                    $values[$subKey][$rowLabel]['total'] .= $stringValue;
+                } else {
+                    $floatValue = floatval($item['value']);
+                    $isInt |= $this->isInt($floatValue);
+                    $maxValue = $maxValue < $floatValue ? $floatValue : $maxValue;
+                    $minValue = $minValue > $floatValue ? $floatValue : $minValue;
+                    $rowLabel = [];
+                    // TODO riformulare in base ai filtri sulle left...
+                    foreach ($leftSeries as $key => $lserie) {
+                        $rowLabel[] = $item[$key];
+                        //$rowLabel .= ($rowLabel?" " . $item[$key]:$item[$key]);
+                    }
+                    $rowLabel = implode($separtoreLeft, $rowLabel);
+                    //$rowLabel = 'bo';
+
+                    if (!Arr::exists($values[$subKey], $rowLabel)) {
+                        $values[$subKey][$rowLabel] = [
+                            'label' => $subKey,
+                            'total' => 0
+                        ];
+                    }
+                    $values[$subKey][$rowLabel]['total'] += $floatValue;
                 }
-                $values[$subKey][$rowLabel]['total'] += $floatValue;
+
 
 
             }
@@ -270,27 +299,34 @@ class ChartData
 
         $rowKeys = $leftSeries[array_keys($series['left'])[0]]['values'];
         $rowIndexKeys = array_keys($rowKeys);
-        $mode = '';
-        $mapKey = '';
-        $mapIstat = [];
-        if (array_key_exists('comune', $leftSeries)) {
-            $mode = 'comuni';
-            $mapKey = 'comune';
-            $mapIstat = $this->_comuniIstat($leftSeries[$mapKey]['values']);
-        } else if (array_key_exists('regione', $leftSeries)) {
-            $mode = 'regioni';
-            $mapKey = 'regione';
-            $mapIstat = $this->_regioniIstat($leftSeries[$mapKey]['values']);
-        } else if (array_key_exists('nazione', $leftSeries)) {
-            $mode = 'nazioni';
-            $mapKey = 'nazione';
-            $mapIstat = $this->_nazioniIstat($leftSeries[$mapKey]['values']);
-        } else if (array_key_exists('provincia', $leftSeries)) {
-            $mode = 'province';
-            $mapKey = 'provincia';
-            $mapIstat = $this->_provinceIstat($leftSeries[$mapKey]['values']);
-        }
+        //$mode = '';
+        //$mapKey = '';
+        //$mapIstat = [];
+        $this->_setMapOptions($leftSeries);
 
+//        if (array_key_exists('comune', $leftSeries)) {
+//            $mode = 'comuni';
+//            $mapKey = 'comune';
+//            $mapIstat = $this->_comuniIstat($leftSeries[$mapKey]['values']);
+//        } else if (array_key_exists('regione', $leftSeries)) {
+//            $mode = 'regioni';
+//            $mapKey = 'regione';
+//            $mapIstat = $this->_regioniIstat($leftSeries[$mapKey]['values']);
+//        } else if (array_key_exists('nazione', $leftSeries)) {
+//            $mode = 'nazioni';
+//            $mapKey = 'nazione';
+//            $mapIstat = $this->_nazioniIstat($leftSeries[$mapKey]['values']);
+//        } else if (array_key_exists('provincia', $leftSeries)) {
+//            $mode = 'province';
+//            $mapKey = 'provincia';
+//            $mapIstat = $this->_provinceIstat($leftSeries[$mapKey]['values']);
+//        }
+//        print_r($leftSeries);
+//        die('mapkey'.$mapKey);
+        $mode = $this->mapOptions['mode'];
+        $mapKey = $this->mapOptions['mapKey'];
+        $mapIstat = $this->mapOptions['mapIstat'];
+        //print_r($this->mapOptions);
         $values = [];
 
         foreach ($this->data['values'] as $item) {
@@ -317,7 +353,7 @@ class ChartData
                     case 'regioni':
                     case 'nazioni':
                     case 'province':
-                        if (Arr::get($mapIstat, $luogo)) {
+                        //if (Arr::get($mapIstat, $luogo)) {
                             $regioneIstat = $mapIstat[$luogo];
                             $seriesValues[$subKey][] = $floatValue;
                             //$min = ($min>$floatValue)?$floatValue:$min;
@@ -330,9 +366,9 @@ class ChartData
                                 ];
                             }
                             $values[$subKey][$luogo]['total'] += $floatValue;
-                        } else {
-                            Log::notice("ChartData luogo non trovato $luogo modalita $mode");
-                        }
+                        //} else {
+                        //    Log::notice("ChartData luogo non trovato $luogo modalita $mode");
+                        //}
                         break;
                 }
 
@@ -740,5 +776,52 @@ class ChartData
             return true;
         }
         return false;
+    }
+
+    private function _setMapOptions($series) {
+        $this->mapOptions = [
+
+        ];
+        //echo "series " . print_r($series,true);
+        $ciSeries = [];
+        foreach ($series as $k => $s) {
+            $ciSeries[strtolower(trim($k))] = $k;
+        }
+        $config = config('cupparis-chart.sinonimi_tipo_geografico',[]);
+        foreach ($config as $cKey => $cValidKeys) {
+            //echo "$cKey " . print_r($cValidKeys,true);
+            foreach ($cValidKeys as $key) {
+                //echo " cerco " . strtolower(trim($key)) . " nel vettore " . print_r($ciSeries,true);
+                if (Arr::exists($ciSeries,strtolower(trim($key)))) {
+                    $this->mapOptions = [
+                        'mode' => $cKey,
+                        'mapKey' => $ciSeries[strtolower(trim($key))],
+                        'mapIstat' => $this->_comuniIstat($series[strtolower(trim($key))]['values'])
+                    ];
+                    return ;
+                }
+            }
+            //echo "----\n";
+        }
+        throw new \Exception('La mappa non ha una key riconosciuta come key geografica');
+
+
+//        if (array_key_exists('comune', $leftSeries)) {
+//            $mode = 'comuni';
+//            $mapKey = 'comune';
+//            $mapIstat = $this->_comuniIstat($leftSeries[$mapKey]['values']);
+//        } else if (array_key_exists('regione', $leftSeries)) {
+//            $mode = 'regioni';
+//            $mapKey = 'regione';
+//            $mapIstat = $this->_regioniIstat($leftSeries[$mapKey]['values']);
+//        } else if (array_key_exists('nazione', $leftSeries)) {
+//            $mode = 'nazioni';
+//            $mapKey = 'nazione';
+//            $mapIstat = $this->_nazioniIstat($leftSeries[$mapKey]['values']);
+//        } else if (array_key_exists('provincia', $leftSeries)) {
+//            $mode = 'province';
+//            $mapKey = 'provincia';
+//            $mapIstat = $this->_provinceIstat($leftSeries[$mapKey]['values']);
+//        }
     }
 }

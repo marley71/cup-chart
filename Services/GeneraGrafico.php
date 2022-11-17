@@ -252,13 +252,18 @@ class GeneraGrafico
      * @return void
      */
     protected function _isMap($leftKeys) {
-        $mapKeys = [
-            'regione','provincia','comune','nazione',
-            'regioni','province','comuni','nazioni'
-        ];
+//        $mapKeys = [
+//            'regione','provincia','comune','nazione',
+//            'regioni','province','comuni','nazioni'
+//        ];
+        $mapType = config('cupparis-chart.sinonimi_tipo_geografico');
         foreach ($leftKeys as $key) {
-            if (in_array(strtolower($key),$mapKeys))
-                return true;
+            foreach ($mapType as $items) {
+                if (in_array(strtolower($key),$items))
+                    return true;
+            }
+//            if (in_array(strtolower($key),$mapKeys))
+//                return true;
         }
         return false;
     }
@@ -274,6 +279,9 @@ class GeneraGrafico
             'province' => ['provincia','province'],
             'nazioni' => ['nazione','nazioni']
         ];
+        $mapType = config('cupparis-chart.sinonimi_tipo_geografico');
+        Log::info('GENERA GRAFICO ' .print_r($mapType,true) );
+        Log::info('Left Keys ' .print_r($leftKeys,true) );
         foreach ($leftKeys as $key) {
             foreach ($mapType as $type => $items) {
                 if (in_array(strtolower($key),$items))
