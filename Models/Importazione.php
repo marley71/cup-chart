@@ -81,9 +81,9 @@ class Importazione extends Breeze
     }
     public function getUrlAttribute()
     {
-        if ($this->filename == 'nofilename') {
-            return '';
-        }
+//        if ($this->filename == 'nofilename') {
+//            return '';
+//        }
         $url = $this->getUrl();
         return '/' . $url;
     }
