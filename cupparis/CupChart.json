@@ -1,0 +1,40 @@
+{
+    "foorm": {
+        "entities": [
+        ]
+    },
+    "modelconfs": {
+        "files": [
+        ]
+    },
+    "permissions": {
+        "models": [
+
+        ],
+        "other_permissions": {
+            "web": [
+            ]
+        }
+    },
+    "policies": {
+        "models": {
+
+        }
+    },
+    "models": [
+
+    ],
+    "datafile-models": [
+    ],
+    "datafile-providers": [
+    ],
+    "public": [
+
+    ],
+    "components": [
+
+    ],
+    "config": [
+
+    ]
+}

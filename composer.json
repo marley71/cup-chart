@@ -1,0 +1,41 @@
+{
+    "name": "marley71/cup-chart-module",
+    "type": "laravel-module",
+    "description": "Pacchetto per la gestione di grafici e dati importati da excel",
+    "keywords": ["laravel", "cupparis"],
+    "license": "MIT",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "http://github.com/gecche/geo-shapes"
+        }
+    ],
+    "authors": [
+        {
+            "name": "Pier Paolo Ciullo",
+            "email": "ciullo@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^7.2|^8.0",
+        "elasticsearch/elasticsearch": "~7.0",
+        "laravel/framework": "^6.2",
+        "phpoffice/phpspreadsheet": "1.*",
+        "dataninja/geo-shapes": "master-dev"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Modules\\CupChart\\Providers\\CupChartServiceProvider"
+            ],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\CupChart\\": ""
+        }
+    }
+}
