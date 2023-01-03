@@ -8,7 +8,7 @@
             <div class="col-12  mb-3" :class="Object.keys(seriesContext).length > 0?'col-lg-9':'col-lg-12'">
                 <div class="row border border-primary mb-2" v-if="Object.keys(filtersContext).length > 0">
                     <div class="col col-12 text-center">
-                        <h6 class="my-2 font-weight-bold">Filtri (Asse x)</h6>
+                        <h6 class="my-2 font-weight-bold">Filtra per</h6>
                     </div>
                     <div class="col col-12 col-lg-6 mb-2" v-for="(ctx,key) in filtersContext">
                         <div class="text-center font-weight-medium">@{{key}}</div>
@@ -40,7 +40,10 @@
                         <li v-for="(serieContext,serieName) in seriesContext" class="list-group-item pt-3 pb-4" :key="serieName">
                             <h6 class="text-center mb-2 pb-1 border-bottom">@{{serieName}}</h6>
                             <template v-if="isMultidimensionale('top',serieName)">
-                                <div class="d-flex" v-for="(serieLabel,serieValue) in serieContext.domainValues">
+                                <div v-if="Object.keys(serieContext.domainValues).length == 1">
+                                    @{{Object.values(serieContext.domainValues)[0]}}
+                                </div>
+                                <div v-else class="d-flex" v-for="(serieLabel,serieValue) in serieContext.domainValues">
 
                                     <div class="badge badge-success badge-soft badge-ico-sm rounded-circle float-start"></div>
 
@@ -59,7 +62,10 @@
                                 </div>
                             </template>
                             <template v-else>
-                                <div class="d-flex" v-for="(serieLabel,serieValue) in serieContext.domainValues">
+                                <div v-if="Object.keys(serieContext.domainValues).length == 1">
+                                    @{{Object.values(serieContext.domainValues)[0]}}
+                                </div>
+                                <div v-else class="d-flex" v-for="(serieLabel,serieValue) in serieContext.domainValues">
 
                                     <div class="badge badge-success badge-soft badge-ico-sm rounded-circle float-start"></div>
 

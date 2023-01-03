@@ -101,7 +101,10 @@
                         <li v-for="(serieContext,serieName) in seriesContext" class="list-group-item pt-3 pb-3" :key="serieName">
                             <h6 class="text-center mb-2 pb-1 border-bottom">@{{serieName}}</h6>
                             <template v-if="isMultidimensionale('top',serieName)">
-                                <div class="d-flex" v-for="(serieLabel,serieValue) in serieContext.domainValues">
+                                <div v-if="Object.keys(serieContext.domainValues).length == 1">
+                                    @{{Object.values(serieContext.domainValues)[0]}}
+                                </div>
+                                <div v-else class="d-flex" v-for="(serieLabel,serieValue) in serieContext.domainValues">
 
                                     <div class="badge badge-success badge-soft badge-ico-sm rounded-circle float-start"></div>
 
@@ -120,7 +123,10 @@
                                 </div>
                             </template>
                             <template v-else>
-                                <div class="d-flex" v-for="(serieLabel,serieValue) in serieContext.domainValues">
+                                <div v-if="Object.keys(serieContext.domainValues).length == 1">
+                                    @{{Object.values(serieContext.domainValues)[0]}}
+                                </div>
+                                <div v-else class="d-flex" v-for="(serieLabel,serieValue) in serieContext.domainValues">
 
                                     <div class="badge badge-success badge-soft badge-ico-sm rounded-circle float-start"></div>
 

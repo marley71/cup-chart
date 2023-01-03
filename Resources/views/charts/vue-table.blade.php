@@ -77,28 +77,6 @@
                     var that = this;
                     var json = that.json;
                     console.log('JSON CHART',that.chart_id);
-                    // var graphicData = [];
-                    // var keys = Object.keys(json.result.values);
-                    // var title = ('titolo' in that)?that.titolo:json.result.description;
-                    // graphicData.push([''].concat(keys));
-                    // var keyValues = Object.keys(json.result.values[keys[0]]);
-                    // for (var kv=0;kv<keyValues.length;kv++) {
-                    //     graphicData.push(that._getLeftValues(keyValues[kv]))
-                    //     //graphicData.push([keyValues[kv]]);
-                    //     for (var k in json.result.values) {
-                    //         graphicData[kv+1].push(parseFloat(json.result.values[k][keyValues[kv]].total));
-                    //     }
-                    // }
-                    // var height = 600;
-                    // if (that.chartType =='chart-o') {
-                    //     var len = graphicData.length;
-                    //     if (len > 7){
-                    //         height += (len-7)*25;
-                    //     }
-                    //     console.log('len',len,height);
-                    // }
-                    // console.log('graphicData',graphicData);
-                    // jQuery('#'+that.chart_id).css('height',height+'px');
 
                     function __drawVisualization() {
                         // Some raw data (not necessarily accurate)
@@ -112,13 +90,17 @@
                         var data = new google.visualization.DataTable();
                         var values = json.result.values;
                         var keys = Object.keys(values);
+                        var extra = json.result.extra;
+
                         for (var left in leftSeries) {
                             data.addColumn('string',left);
                         }
 
+                        let tableType = extra.tipo == 'string'?'string':'number';
+                        console.log('tableType',tableType);
                         for (var i=0;i<keys.length;i++) {
                             var columName = keys[i].split(that.separatoreTop).join('<br>');
-                            data.addColumn('number',columName);
+                            data.addColumn(tableType,columName);
                         }
                         var rows = [];
                         for (var k1 in values[keys[0]]) {
@@ -128,8 +110,8 @@
                         //console.log('keys',keys,'rowKeys',rowKeys);
                         for (var j=0;j<rowKeys.length;j++) {
                             for (var col in keys) {
-                                //console.log('j',j,keys[col],rowKeys[j],values[ keys[col] ][ rowKeys[j] ])
-                                rows[j].push(values[ keys[col] ][ rowKeys[j] ].total);
+                                let v = tableType=='string'?values[ keys[col] ][ rowKeys[j] ].total+"":values[ keys[col] ][ rowKeys[j] ].total;
+                                rows[j].push(v);
                             }
 
                         }
@@ -162,27 +144,31 @@
                             default:
 
                                 var pattern = '0.';
-                                var extra = json.result.extra;
-                                if (extra.tipo_valore.toLowerCase() == 'percentuale') {
-                                    pattern = pattern.padEnd(2+extra.decimali,'0');
-                                } else {
-                                    if (extra.tipo=='integer' || extra.decimali === 0) {
-                                        pattern = '0'
-                                    } else {
-                                        pattern = pattern.padEnd(2+extra.decimali,'0');
-                                    }
-                                }
-                                console.log('EXTRA',json.result.extra,pattern);
-                                //alert(pattern + json.result.extra.decimali);
-                                var formatter = new google.visualization.NumberFormat({
-                                    pattern: pattern,
-                                    suffix: extra.suffisso,
-                                    prefix : extra.prefisso,
-                                });
 
-                                // format number columns
-                                for (var i = 1; i < data.getNumberOfColumns(); i++) {
-                                    formatter.format(data, i);
+
+                                if (extra.tipo != 'string') {
+
+                                    if (extra.tipo_valore.toLowerCase() == 'percentuale') {
+                                        pattern = pattern.padEnd(2 + extra.decimali, '0');
+                                    } else {
+                                        if (extra.tipo == 'integer' || extra.decimali === 0) {
+                                            pattern = '0'
+                                        } else {
+                                            pattern = pattern.padEnd(2 + extra.decimali, '0');
+                                        }
+                                    }
+                                    console.log('EXTRA', json.result.extra, pattern);
+                                    //alert(pattern + json.result.extra.decimali);
+                                    var formatter = new google.visualization.NumberFormat({
+                                        pattern: pattern,
+                                        suffix: extra.suffisso,
+                                        prefix: extra.prefisso,
+                                    });
+
+                                    // format number columns
+                                    for (var i = 1; i < data.getNumberOfColumns(); i++) {
+                                        formatter.format(data, i);
+                                    }
                                 }
                         }
 

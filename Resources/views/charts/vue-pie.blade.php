@@ -5,7 +5,7 @@
 {{--            <div class="col-12">--}}
 {{--                <h4>@{{ description }}</h4>--}}
 {{--            </div>--}}
-            <div class="col-12  mb-3" :class="Object.keys(seriesContext).length > 0?'col-lg-9':'col-lg-12'">
+            <div class="col-12  mb-3" :class="(Object.keys(seriesContext).length > 0) || (Object.keys(series).length > 0)?'col-lg-9':'col-lg-12'">
                 <div class="row border border-primary mb-2" v-if="Object.keys(filtersContext).length > 0">
                     <div class="col col-12 text-center">
                         <h6 class="my-2 font-weight-bold">Filtri (Asse x)</h6>
@@ -40,7 +40,10 @@
                         <li v-for="(serieContext,serieName) in seriesContext" class="list-group-item pt-3 pb-4" :key="serieName">
                             <h6 class="text-center mb-2 pb-1 border-bottom">@{{serieName}}</h6>
                             <template v-if="isMultidimensionale('top',serieName)">
-                                <div class="d-flex" v-for="(serieLabel,serieValue) in serieContext.domainValues">
+                                <div v-if="Object.keys(serieContext.domainValues).length == 1">
+                                    @{{Object.values(serieContext.domainValues)[0]}}
+                                </div>
+                                <div v-else class="d-flex" v-for="(serieLabel,serieValue) in serieContext.domainValues">
 
                                     <div class="badge badge-success badge-soft badge-ico-sm rounded-circle float-start"></div>
 
@@ -60,19 +63,22 @@
                             </template>
                             <template v-else>
                                 <div class="d-flex" v-for="(serieLabel,serieValue) in serieContext.domainValues">
+                                    <div v-if="Object.keys(serieContext.domainValues).length == 1">
+                                        @{{Object.values(serieContext.domainValues)[0]}}
+                                    </div>
+                                    <div v-else class="badge badge-success badge-soft badge-ico-sm rounded-circle float-start">
 
-                                    <div class="badge badge-success badge-soft badge-ico-sm rounded-circle float-start"></div>
-
-                                    <label class="form-radio form-radio-success">
-                                        <input type="radio" :serie-name="serieName" :value="serieValue" v-model="series[serieName]"  v-on:change="changeMisura($event)" :filtro-type="top">
-                                        <i></i> <img src="">
-                                    </label>
+                                        <label class="form-radio form-radio-success">
+                                            <input type="radio" :serie-name="serieName" :value="serieValue" v-model="series[serieName]"  v-on:change="changeMisura($event)" :filtro-type="top">
+                                            <i></i> <img src="">
+                                        </label>
 
 
-                                    <div class="pl--12">
-                                        <p class="text-dark font-weight-medium m-0">
-                                            @{{serieLabel}}
-                                        </p>
+                                        <div class="pl--12">
+                                            <p class="text-dark font-weight-medium m-0">
+                                                @{{serieLabel}}
+                                            </p>
+                                        </div>
                                     </div>
 
                                 </div>
@@ -97,7 +103,18 @@
 {{--                    </label>--}}
 {{--                </div>--}}
             </div>
+            <div v-else-if="Object.keys(series).length > 0" class="col-12 col-lg-3 d-flex flex-column" >
+                <div class="border border-success" >
+                    <h6 class="text-center my-2 font-weight-bold">Serie visualizzate</h6>
+                    <ul class="list-group overflow-auto border-none dpa-chart">
 
+                        <li v-for="(serieValue,serieName) in series" class="list-group-item pt-3 pb-4" :key="serieName">
+                            <h6 class="text-center mb-2 pb-1 border-bottom">@{{serieName}}</h6>
+                            <div>@{{serieValue}}</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
             <div class="flex-grow-1">
 
             </div>
