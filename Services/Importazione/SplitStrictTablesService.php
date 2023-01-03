@@ -258,6 +258,10 @@ class SplitStrictTablesService
             'suffisso' => '',
             'prefisso' => '',
             'decimali' => 2,
+            'filtri_top' => [],
+            'filtri_left' => [],
+            'grafico' => '',
+            'tipo' => 'integer'
         ];
         if ($this->getCalcValue($sheet->getCell($coordinate))) {
             // non c'e' la riga vuota
@@ -268,7 +272,7 @@ class SplitStrictTablesService
         while (!$finito) {
             $letter = $metadataColumn;
             //$coordinate = $letter.$row;
-            $key = strtolower($this->getCalcValue($sheet->getCell($metadataColumn.$row)));
+            $key = trim(strtolower($this->getCalcValue($sheet->getCell($metadataColumn.$row))));
             if (!$key) {
                 $finito = true;
                 continue;
@@ -283,7 +287,19 @@ class SplitStrictTablesService
                             $extra['note'][] = $val;
                     } while($val);
                     break;
+                case 'filtri_top':
+                case 'filtri_left':
+                    do {
+                        $letter++;
+                        //$coordinate = $letter.$row;
+                        $val = $this->getCalcValue($sheet->getCell($letter.$row));
+                        Log::info('filtri_left ' . $val);
+                        if ($val)
+                            $extra[$key][] = $val;
+                    } while($val);
+                    break;
                 case 'tipo_valore':
+                case 'tipo':
                 case 'suffisso':
                 case 'prefisso':
                 case 'decimali':
@@ -291,6 +307,11 @@ class SplitStrictTablesService
                     $letter++;
                     //$coordinate = $letter.$row;
                     $val = $this->getCalcValue($sheet->getCell($letter.$row));
+                    $extra[$key] = $val;
+                    break;
+                case 'grafico':
+                    $letter++;
+                    $val = $sheet->getCell($letter.$row)->getValue();
                     $extra[$key] = $val;
                     break;
                 default:

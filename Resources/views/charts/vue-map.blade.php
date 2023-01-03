@@ -1,19 +1,3 @@
-<style type="text/css">
-    .map-title {
-        display: table;
-        position: relative;
-        margin: 0px auto;
-        word-wrap: anywhere;
-        white-space: pre-wrap;
-        padding: 10px;
-        border: none;
-        border-radius: 3px;
-        font-size: 12px;
-        text-align: center;
-        color: #222;
-        background: #fff;
-    }
-</style>
 <template id="vue-map-template">
     <div v-if="!loading" class="container-fluid d-flex flex-column min-h-75vh">
         <hr class="w-100 mb--20"/>
@@ -23,17 +7,21 @@
 {{--            </div>--}}
 
             <div class="col-12 col-lg-9 mb-3">
-                <div class="row" v-if="Object.keys(context).length > 0">
-                    <div class="col-6" v-for="(ctx,key) in context">
-                        <div>@{{key}}</div>
-                        <select class="form-control" :name="key" v-on:change="changeContext($event)">
+                <div class="row border border-primary mb-2" v-if="Object.keys(filtersContext).length > 0">
+                    <div class="col col-12 text-center">
+                        <h6 class="my-2 font-weight-bold">Filtri (Asse x)</h6>
+                    </div>
+                    <div class="col col-12 col-lg-6 mb-2" v-for="(ctx,key) in filtersContext">
+                        <div class="text-center font-weight-medium">@{{key}}</div>
+                        <select class="form-control" :name="key" v-model="filters[key]" v-on:change="changeMisura($event)"
+                                filtro-type="left" :multiple="isMultidimensionale('left',key)">
                             <option v-for="(label,keyLabel) in ctx.domainValues" :value="keyLabel">@{{label}}</option>
                         </select>
                     </div>
 
                 </div>
                 <div class="row">
-                    <div class="col-12 bg-white shadow-primary-xs rounded p-0 mt-4 ">
+                    <div class="col-12 bg-white shadow-primary-xs rounded p-2">
                         <div :id="title_id" class="d-none map-title">@{{ description }}</div>
                         <div :id="map_id" class="h--600 w-100 rounded">
 
@@ -60,11 +48,11 @@
                 </div>
             </div>
             <div class="col-12 col-lg-3 d-flex flex-column">
-                <div class="">
-                    <h6>Legenda</h6>
-                    <ul class="list-unstyled bg-gray-200 p-2">
-                        <li v-for="(filter,index) in legend" class="p--2 small mb--5" :key="index">
-                            <div class="row">
+                <div class="border border-success">
+                    <h6 class="text-center my-2 font-weight-bold">Legenda</h6>
+                    <ul class="list-group overflow-none border-none dpa-chart">
+                        <li class="list-group-item pt-3 pb-4" >
+                            <div class="d-flex"  v-for="(filter,index) in legend" :key="index">
                                 <template v-if="index==0">
                                     <span class="col-12 text-right">
                                         minore di <b>@{{valueFormat(legend[index+1])}}</b>
@@ -105,19 +93,23 @@
 
                         </li>
                     </ul>
+                </div>
+                <div class="border border-success mt--3" v-if="Object.keys(seriesContext).length > 0">
+                    <h6 class="text-center my-2 font-weight-bold">Serie visualizzate</h6>
+                    <ul class="list-group overflow-auto border-none dpa-chart">
 
-                    <div class="" v-if="Object.keys(seriesContext).length > 0">
-                        <h6>Mostra</h6>
-                        <ul class="list-group rounded overflow-auto">
-
-                            <li v-for="(serie,serieName) in seriesContext" class="list-group-item pt-3 pb-3" :key="serieName">
-                                <h6>@{{serieName}}</h6>
-                                <div class="d-flex" v-for="(serieLabel,serieValue) in serie.domainValues">
+                        <li v-for="(serieContext,serieName) in seriesContext" class="list-group-item pt-3 pb-3" :key="serieName">
+                            <h6 class="text-center mb-2 pb-1 border-bottom">@{{serieName}}</h6>
+                            <template v-if="isMultidimensionale('top',serieName)">
+                                <div v-if="Object.keys(serieContext.domainValues).length == 1">
+                                    @{{Object.values(serieContext.domainValues)[0]}}
+                                </div>
+                                <div v-else class="d-flex" v-for="(serieLabel,serieValue) in serieContext.domainValues">
 
                                     <div class="badge badge-success badge-soft badge-ico-sm rounded-circle float-start"></div>
 
-                                    <label class="form-radio form-radio-success">
-                                        <input type="radio" :serie-name="serieName" :value="serieValue" v-model="serie.value"  v-on:change="changeMisura($event)">
+                                    <label class="form-checkbox form-checkbox-success">
+                                        <input type="checkbox" :name="serieName"  :value="serieValue"  v-on:change="changeMisura($event)" v-model="series[serieName]" filtro-type="top">
                                         <i></i> <img src="">
                                     </label>
 
@@ -129,55 +121,51 @@
                                     </div>
 
                                 </div>
-                            </li>
+                            </template>
+                            <template v-else>
+                                <div v-if="Object.keys(serieContext.domainValues).length == 1">
+                                    @{{Object.values(serieContext.domainValues)[0]}}
+                                </div>
+                                <div v-else class="d-flex" v-for="(serieLabel,serieValue) in serieContext.domainValues">
 
-                        </ul>
-                        <!-- /Aero List -->
+                                    <div class="badge badge-success badge-soft badge-ico-sm rounded-circle float-start"></div>
 
-                    </div>
-
-{{--                    <h6>Mostra:</h6>--}}
-{{--                    <ul class="list-group rounded overflow-auto">--}}
-
-{{--                        <li v-for="(serieName,index) in series" class="list-group-item p--0" :key="index">--}}
-{{--                            <div class="d-flex">--}}
-
-{{--                                --}}{{--                                            <div class="badge badge-success badge-soft badge-ico-sm rounded-circle float-start"></div>--}}
-{{--                                --}}{{--                                                <i class="fi fi-check"></i>--}}
-{{--                                <label class="form-radio form-radio-success">--}}
-{{--                                    <input type="radio" name="serie" :value="serieName" v-model="serie"  v-on:change="changeMisura($event)">--}}
-{{--                                    <i></i> <img src="">--}}
-{{--                                </label>--}}
+                                    <label class="form-radio form-radio-success">
+                                        <input type="radio" :serie-name="serieName" :value="serieValue" v-model="series[serieName]"  v-on:change="changeMisura($event)" :filtro-type="top">
+                                        <i></i> <img src="">
+                                    </label>
 
 
-{{--                                <div class="pl--12">--}}
-{{--                                    <p class="text-dark font-weight-medium m-0">--}}
-{{--                                        @{{serieName}}--}}
-{{--                                    </p>--}}
-{{--                                </div>--}}
+                                    <div class="pl--12">
+                                        <p class="text-dark font-weight-medium m-0">
+                                            @{{serieLabel}}
+                                        </p>
+                                    </div>
 
-{{--                            </div>--}}
-{{--                        </li>--}}
+                                </div>
+                            </template>
 
-{{--                    </ul>--}}
+                        </li>
+
+                    </ul>
                     <!-- /Aero List -->
 
                 </div>
+                <div class="border border-success mt--3" v-else-if="Object.keys(series).length > 0">
+                    <h6 class="text-center my-2 font-weight-bold">Serie visualizzate</h6>
+                    <ul class="list-group overflow-auto border-none dpa-chart">
 
-{{--                <div class="flex-grow-1"></div>--}}
-{{--                <div class="pb-4 mt--10">--}}
-{{--                    <label class="form-switch form-switch-pill form-switch-danger d-block">--}}
-{{--                        <input type="checkbox" value="1" v-on:change="toggleLayer('zone')">--}}
-{{--                        <i data-on="&#10004;" data-off="&#10005;"></i>--}}
-{{--                        <span>Mostre tutte le zone interdette</span>--}}
-{{--                    </label>--}}
-{{--                </div>--}}
+                        <li v-for="(serieContext,serieName) in series" class="list-group-item pt-3 pb-3" :key="serieName">
+                            <h6 class="text-center mb-2 pb-1 border-bottom">@{{serieName}}</h6>
+                            <div>@{{serieContext}}</div>
+                        </li>
+
+                    </ul>
+                </div>
             </div>
-
             <div class="flex-grow-1">
 
             </div>
-
         </div>
     </div>
 </template>
@@ -192,6 +180,7 @@
         var vMap =new Vue({
             el : '#'+id,
             template : '#vue-map-template',
+            mixins: [GraficiMixin],
             mounted() {
                 var that = this;
                 console.log('tipo di mappa',that.chartType,data)
@@ -242,9 +231,9 @@
                     that.gMap.showMap();
                     that.gMap.map.on('load', () => {
                         that.load();
-                        if (data.showTitle) {
+                        //if (data.showTitle) {
                             jQuery('#'+that.title_id).removeClass('d-none');
-                        }
+                        //}
                     })
                 },100)
 
@@ -259,7 +248,8 @@
                     loading: true,
                     type : 'map',
                     comuni: [],
-                    filters : data.filters || {},
+                    filters : {},
+                    series: {},
                     description:'',
                     json : {},
                     name : null,
@@ -267,13 +257,14 @@
                     title_id : 'id' + '_title',
                     gMap : null,
                     legend : [],
-                    context : {},
-                    seriesContext:{},
+                    filtersContext : {},
+                    seriesContext : {},
                     primaVolta : true,
-                    //series : [],
                     serie : null,
                     labelValore : 'valore',
                     selectedSerie : null,
+                    cardinalitaSerie:{},
+                    cardinalitaFiltri:{},
                 }
                 var mergedData = Object.assign(defaultData,d);
                 console.log('mergedData',mergedData)
@@ -295,29 +286,7 @@
                 toggleComune(comune) {
                     this.gMap.toggleComune(comune)
                 },
-                changeMisura(event) {
-
-                    var that = this;
-                    jQuery('body').addClass('loading');
-                    var target = event.target;
-                    var serieName = jQuery(event.target).attr('serie-name');
-                    console.log('serie name',serieName,target.value);
-                    //that.context[target.name] = target.value;
-                    that.series[serieName] = target.value;
-                    that.load();
-
-
-                    // console.log('eventgggg',event.target.value);
-                    // that.legend = that.json.result.range[event.target.value];
-                    // console.log('legendaaaa',that.legend);
-                    // that.gMap.rimuoviDistribuzione(that.selectedSerie);
-                    // that.gMap.caricaDistribuzione(that.resourceId,that.json.result,event.target.value);
-                    // that.selectedSerie = event.target.value;
-                    // //that.legend = Object.keys(that.gMap.layoutProperties);
-
-                    return ;
-                },
-                reloadMap() {
+                showChart() {
                     var that = this;
                     that.gMap.init(function () {
                         console.log('contesto json',that.json.result.context);
@@ -332,83 +301,66 @@
                         that.legend = that.gMap.range[Object.keys(that.gMap.range)[0]]; //Object.keys(that.gMap.layoutProperties);
                         console.log('legeng',that.legend);
                         jQuery('body').removeClass('loading');
+                        that.enableMultiSelect();
                     });
-                },
-                load() {
-                    var that = this;
-
-                    // var contextValue = {};
-                    // for (var k in that.context) {
-                    //     contextValue[k] = jQuery('select[name="'+k+'"]').val();
-                    // }
-                    //console.log('context',contextValue);
-                    console.log('load distribuzione filters',that.filters,'series',that.series);
-                    jQuery.get('/distribuzione/'+that.resourceId+'/'+that.resourceType,{filters : that.filters,series:that.series},function (json) {
-                        console.log('distribuzione json',json);
-                        if (json.error) {
-                            console.error('errore',json.msg);
-                            return ;
-                        }
-                        that.json = json;
-                        if (that.primaVolta) {
-                            //jQuery.extend( true,that.context , (that.json.result.context || {}),true);
-                            that.description = ('titolo' in that)?that.titolo:that.json.result.description;
-                            // if (that.titolo)
-                            // that.description = that.json.result.description;
-                            that.context = that.json.result.context || {};
-                            that.seriesContext =  json.result.seriesContext || {};
-                            //that.series = Object.keys(that.json.result.values);
-                            //that.serie = that.series[0];
-                            that.gMap.colors = schema_colori[that.schemaColor] || schema_colori['default'];
-                            that.gMap.labelValore = that.json.result.extra.tipo_valore
-                            that.primaVolta = false;
-                            //TODO da migliorare
-                            setTimeout(function () {
-                                var ctx = that.context;
-                                for (var k in ctx) {
-                                    console.log('setto selecte',k,ctx[k].value);
-                                    jQuery('[name="' + k +'"').val(ctx[k].value);
-                                }
-                            },500)
-
-                        }
-                        that.reloadMap();
-                    }).fail(function (e) {
-                        console.error(e);
-                    })
-                },
-                changeContext(event) {
-                    var that = this;
-                    var target = event.target;
-                    console.log('name',target.name,target.value);
-                    //that.context[target.name] = target.value;
-                    that.filters[target.name] = target.value;
-                    jQuery('body').addClass('loading');
-                    that.load();
                 },
                 valueFormat(value) {
                     return this.gMap.valueFormat(value);
                 },
-                getSelectedSeries() {
+
+                initObjectData() {
                     var that = this;
-                    // nei casi iniziali i valori presenti nelle serie potrebbero non corrispondere a quelli che si vedono in video
-                    var s = that.series || {};
-                    for (var k in that.series) {
-                        var value = that.series[k];
-                        if (value.substring(0,1) == '*' || value.substring(0,1) == '?') {
-                            s[k] = jQuery(that.$el).find('input[serie-name="' + k +'"]:checked').val()
-                        } else {
-                            s[k] = value;
-                        }
+                    var json = that.json;
+                    that.description = that.titolo?that.titolo:json.result.description;
+                    that.filtersContext = json.result.filtersContext || {};
+                    that.seriesContext = json.result.seriesContext || {}; //Object.keys(that.json.result.values);
+                    for (var k in that.seriesContext) {
+                        that.cardinalitaSerie[k] = that.seriesContext[k].cardinalita;
                     }
-                    return s;
-                },
-                getNote() {
-                    if (this.json.result) {
-                        return this.json.result.extra.note;
+                    for (var k in that.filtersContext) {
+                        that.cardinalitaFiltri[k] = that.filtersContext[k].cardinalita;
                     }
-                    return [];
-                },
+                    that.series = {};
+                    // topContext e leftContext sono i filtri che mi arrivano dall'attributo del div
+                    for (var k in that.topContext) {
+                        k = k.toLowerCase();
+                        console.log('k',k)
+                        if (that.isMultidimensionale('top',k))
+                            that.series[k] = json.result.currentSeries[k]
+                        else
+                            that.series[k] = json.result.currentSeries[k][0]
+                    }
+                    for (var k in that.leftContext) {
+                        k = k.toLowerCase();
+                        console.log('k',k)
+                        if (that.isMultidimensionale('left',k))
+                            that.filters[k] = json.result.currentFilters[k]
+                        else
+                            that.filters[k] = json.result.currentFilters[k][0]
+                    }
+
+                    that.gMap.colors = schema_colori[that.schemaColor] || schema_colori['default'];
+                    that.gMap.labelValore = that.json.result.extra.tipo_valore
+                    that.description = ('titolo' in that)?that.titolo:that.json.result.description;
+
+                    that.primaVolta = false;
+
+
+
+                    // vecchio codice
+                    // that.context = that.json.result.context || {};
+                    // that.seriesContext =  json.result.seriesContext || {};
+
+                    // that.primaVolta = false;
+                    // //TODO da migliorare
+                    // setTimeout(function () {
+                    //     var ctx = that.context;
+                    //     for (var k in ctx) {
+                    //         console.log('setto selecte',k,ctx[k].value);
+                    //         jQuery('[name="' + k +'"').val(ctx[k].value);
+                    //     }
+                    // },500)
+                }
             }
         })
         return vMap

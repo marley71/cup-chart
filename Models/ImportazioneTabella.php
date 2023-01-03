@@ -2,6 +2,7 @@
 
 use App\Services\Importazione\RenderTableService;
 use Gecche\Cupparis\App\Breeze\Breeze;
+use Illuminate\Support\Arr;
 
 /**
  * Breeze (Eloquent) model for T_AREA table.
@@ -19,7 +20,8 @@ class ImportazioneTabella extends Breeze
     public $ownerships = false;
 
     public $appends = [
-         'graph_key' //'metadatao',
+         'graph_key', //'metadatao',
+        'extra'
     ];
 
 //    protected $casts = [
@@ -61,6 +63,15 @@ class ImportazioneTabella extends Breeze
 
     public function getGraphKeyAttribute() {
         return $this->importazione_id . "_" . $this->sheetname . "_" . $this->progressivo;
+    }
+
+    public function getExtraAttribute() {
+        try {
+            $arr = json_decode($this->metadata,true);
+            return Arr::exists($arr,'extra')?Arr::get($arr,'extra'):['bo' => 23];
+        } catch (\Exception $e) {
+            return [];
+        }
     }
 
     public function getTabellaExcelAttribute() {

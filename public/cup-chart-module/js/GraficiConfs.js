@@ -8,7 +8,7 @@
 // "mapbox://styles/mapbox/outdoors-v11"
 
 var mapConf = {
-    mapStyle: "mapbox://styles/mapbox/dark-v10"
+    mapStyle: "mapbox://styles/mapbox/streets-v11"
 }
 
 
