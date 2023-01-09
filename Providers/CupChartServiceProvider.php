@@ -96,7 +96,7 @@ class CupChartServiceProvider extends ServiceProvider
     public function registerFactories()
     {
         if (! app()->environment('production') && $this->app->runningInConsole()) {
-            app(Factory::class)->load(module_path('CupChart', 'Database/factories'));
+            // app(Factory::class)->load(module_path('CupChart', 'Database/factories'));
         }
     }
 
