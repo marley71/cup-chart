@@ -40,7 +40,7 @@ class GeneraGrafico
                 //Log::info('attributes ' . print_r($attributes,true) );
 
                 $html = $this->getHtml($attributes);
-                \App\Models\GraficoTabella::create([
+                \lang\Modules\CupChart\app\Models\GraficoTabella::create([
                     'nome' => $attributes['cup-grafico'],
                     'html' => $html,
                     'attributes' => json_encode($attributes),
@@ -52,7 +52,7 @@ class GeneraGrafico
             $attributes['class'] = "table-preview";
             $attributes['cup-type'] = 'table';
             $html = $this->getHtml($attributes);
-            \App\Models\GraficoTabella::create([
+            \lang\Modules\CupChart\app\Models\GraficoTabella::create([
                 'nome' =>  $attributes['cup-grafico'],
                 'html' => $html,
                 'attributes' => json_encode($attributes),

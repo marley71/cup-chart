@@ -18,7 +18,7 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class RenderTableService extends \Modules\CupChart\Services\Importazione\RenderTableService
+class RenderTableService extends \lang\Modules\CupChart\Services\Importazione\RenderTableService
 {
 
 }

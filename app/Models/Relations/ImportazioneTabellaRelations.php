@@ -13,7 +13,7 @@ trait ImportazioneTabellaRelations
 
     public function grafici() {
 
-        return $this->hasMany('App\Models\GraficoTabella', 'importazione_tabelle_id', null);
+        return $this->hasMany('lang\Modules\CupChart\app\Models\GraficoTabella', 'importazione_tabelle_id', null);
 
     }
 

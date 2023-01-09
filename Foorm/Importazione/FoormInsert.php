@@ -1,7 +1,7 @@
 <?php  namespace Modules\CupChart\Foorm\Importazione;
 
 
-use App\Models\GraficoTabella;
+use lang\Modules\CupChart\app\Models\GraficoTabella;
 use App\Services\CreaGrafico;
 use Gecche\Cupparis\App\Foorm\Base\FoormInsert as BaseFoormInsert;
 use GuzzleHttp\Client;

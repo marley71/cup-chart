@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Gecche\Breeze\Database\Schema\Blueprint;
 
-class CreateImportazioniTabelleTable extends Migration
+return new class  extends Migration
 {
 
     /**
@@ -39,4 +39,4 @@ class CreateImportazioniTabelleTable extends Migration
         Schema::drop('importazioni_tabelle');
     }
 
-}
+};

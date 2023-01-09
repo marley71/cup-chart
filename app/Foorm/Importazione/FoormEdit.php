@@ -3,7 +3,7 @@
 namespace App\Foorm\Importazione;
 
 
-use App\Models\GraficoTabella;
+use lang\Modules\CupChart\app\Models\GraficoTabella;
 use Gecche\Cupparis\App\Foorm\Base\FoormInsert as BaseFoormInsert;
 use GuzzleHttp\Client;
 use Illuminate\Support\Arr;

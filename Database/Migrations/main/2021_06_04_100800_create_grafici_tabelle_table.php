@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Gecche\Breeze\Database\Schema\Blueprint;
 
-class CreateGraficiTabelleTable extends Migration
+return new class  extends Migration
 {
 
     /**
@@ -36,4 +36,4 @@ class CreateGraficiTabelleTable extends Migration
         Schema::drop('grafici_tabelle');
     }
 
-}
+};
