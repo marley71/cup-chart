@@ -2,8 +2,10 @@
 
 namespace Modules\CupChart\Providers;
 
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\ServiceProvider;
+//use Illuminate\Database\Eloquent\Factories\Factory;
 
 class CupChartServiceProvider extends ServiceProvider
 {
@@ -81,7 +83,7 @@ class CupChartServiceProvider extends ServiceProvider
 
         $this->loadViewsFrom(array_merge(array_map(function ($path) {
             return $path . '/modules/cup-chart';
-        }, \Config::get('view.paths')), [$sourcePath]), 'cup-chart');
+        }, Config::get('view.paths')), [$sourcePath]), 'cup-chart');
     }
 
 
