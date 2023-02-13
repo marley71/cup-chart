@@ -13,6 +13,8 @@ class FoormEdit extends BaseFoormEdit
 {
 
     protected $fileId;
+    protected $manageCommand = 'manage-importazione';
+    protected $creaImportazioneCommand = 'crea-importazione-json';
 
     public $validationSettings = [
         'rules' => [
@@ -87,11 +89,11 @@ class FoormEdit extends BaseFoormEdit
         // elimino le vecchie importazioni
         ImportazioneTabella::where('importazione_id',$this->model->getKey())->delete();
         // TODO meglio far partire un processo in coda
-        Artisan::call('manage-importazione',[
+        Artisan::call($this->manageCommand,[
             'id' => $this->model->getKey(),
             '--strict' => 1
         ]);
-        Artisan::call('crea-importazione-json',['id' => $this->model->getKey()]);
+        Artisan::call($this->creaImportazioneCommand,['id' => $this->model->getKey()]);
         $graf = new GeneraGrafico();
 
         $graf->creaGrafico($this->model->getKey());

@@ -3,6 +3,7 @@
 use App\Services\Importazione\RenderTableService;
 use Gecche\Cupparis\App\Breeze\Breeze;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Breeze (Eloquent) model for T_AREA table.
@@ -68,6 +69,10 @@ class ImportazioneTabella extends Breeze
     public function getExtraAttribute() {
         try {
             $arr = json_decode($this->metadata,true);
+            if ($arr === null) {
+                //Log::warning('extra is null for importazione_tabella ' . $this->importazione_id);
+                return [];
+            }
             return Arr::exists($arr,'extra')?Arr::get($arr,'extra'):['bo' => 23];
         } catch (\Exception $e) {
             return [];

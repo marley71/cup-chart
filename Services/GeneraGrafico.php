@@ -9,6 +9,7 @@
 
 
 //use Elasticsearch\ClientBuilder;
+use App\Models\GraficoTabella;
 use Elasticsearch\ClientBuilder;
 use GuzzleHttp\Client;
 use Illuminate\Support\Arr;
@@ -40,7 +41,7 @@ class GeneraGrafico
                 //Log::info('attributes ' . print_r($attributes,true) );
 
                 $html = $this->getHtml($attributes);
-                \lang\Modules\CupChart\app\Models\GraficoTabella::create([
+                GraficoTabella::create([
                     'nome' => $attributes['cup-grafico'],
                     'html' => $html,
                     'attributes' => json_encode($attributes),
@@ -52,7 +53,7 @@ class GeneraGrafico
             $attributes['class'] = "table-preview";
             $attributes['cup-type'] = 'table';
             $html = $this->getHtml($attributes);
-            \lang\Modules\CupChart\app\Models\GraficoTabella::create([
+            GraficoTabella::create([
                 'nome' =>  $attributes['cup-grafico'],
                 'html' => $html,
                 'attributes' => json_encode($attributes),

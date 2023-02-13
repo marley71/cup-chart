@@ -24,6 +24,7 @@ return new class  extends Migration
             $table->integer('progressivo')->nullable()->default(1);
             $table->string('elastic_id')->nullable();
             $table->longText('metadata')->nullable();
+            $table->boolean('attivo')->default(true);
             $table->nullableTimestamps();
             $table->nullableOwnerships();
         });

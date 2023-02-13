@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('filename')->nullable();
             $table->string('ext', 6);
             $table->text('data')->nullable();
+            $table->integer('ordine')->default(0);
+            $table->boolean('attivo')->default(true);
             $table->nullableTimestamps();
             $table->nullableOwnerships();
         });

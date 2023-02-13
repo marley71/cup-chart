@@ -102,7 +102,15 @@ class SplitStrictTablesService
 
         $this->objectReader->setLoadSheetsOnly([$sheetName]);
 
-        $spreadSheet = $this->objectReader->load($this->dataFile);
+        //var_dump($this->dataFile);
+        //var_dump($sheetName);
+        try {
+            $spreadSheet = $this->objectReader->load($this->dataFile);
+        } catch (\Exception $e) {
+            Log::error($this->importazione->id . " " . $this->importazione->nome . " importazione foglio $sheetName non riuscita" );
+            return 0;
+        }
+
         $spreadSheet->setActiveSheetIndexByName($sheetName);
 
         $currentSheet = $spreadSheet->getActiveSheet();

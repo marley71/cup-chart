@@ -38,7 +38,7 @@ class Importazione extends Breeze
     public static $relationsData = [
 
         'tabelle' => [self::HAS_MANY, 'related' => \App\Models\ImportazioneTabella::class, 'foreignKey' => 'importazione_id'],
-//        'menu' => [self::BELONGS_TO, 'related' =>  Menu::class, 'foreignKey' => 'menu_id'],
+        'menu' => [self::BELONGS_TO, 'related' =>  Menu::class, 'foreignKey' => 'menu_id'],
 //        'fonte' => [self::BELONGS_TO, 'related' =>  Fonte::class, 'foreignKey' => 'fonte_id'],
 //        'belongsto' => array(self::BELONGS_TO, Area::class, 'foreignKey' => '<FOREIGNKEYNAME>'),
 //        'belongstomany' => array(self::BELONGS_TO_MANY, Area::class, 'table' => '<TABLEPIVOTNAME>','pivotKeys' => [],'foreignKey' => '<FOREIGNKEYNAME>','otherKey' => '<OTHERKEYNAME>') ,
