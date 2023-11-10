@@ -739,6 +739,47 @@ class ChartData
         $interval = [];
 
         foreach ($seriesValues as $key => $val) {
+            sort($val);
+            Log::info('--- serievalues' . print_r($val,1));
+            $lun = count($val);
+            sort($val);
+            $quartile = intval(count($val) / 4);
+            $interval[$key] = [];
+            $interval[$key][] = $val[$quartile];
+            $interval[$key][] = $val[$quartile*2];
+            $interval[$key][] = $val[$quartile*3];
+            $interval[$key][] = $val[count($val)-1];
+//            $valid = array_unique($seriesValues[$key]);
+//            sort($valid);
+//            $lun = count($valid);
+//            if ($lun < 4) {
+//                $min = $valid[0];
+//                $mins = [];
+//                for ($i = 0; $i < 4 - $lun; $i++) {
+//                    $mins[] = $min;
+//                }
+//                $interval[$key] = array_merge($mins, $valid);
+//            } else {
+//                $step = floor(count($valid) / 4.0);
+//                $interval[$key] = [];
+//                for ($i = 0; $i < 4; $i++) {
+//                    // TODO controllare il calcolo del range non funziona bene con valori ripetutti troppe volte
+//                    //            if ($i>0 &&
+//                    //                ($seriesValues[$i*$step]  == $seriesValues[($i-1) * $step]) )
+//                    //                continue;
+//                    $interval[$key][] = $valid[$i * $step];
+//                }
+//            }
+
+        }
+        return $interval;
+    }
+
+    protected function _calcolaIntervalliOld($seriesValues)
+    {
+        $interval = [];
+
+        foreach ($seriesValues as $key => $val) {
             $valid = array_unique($seriesValues[$key]);
             sort($valid);
             $lun = count($valid);
@@ -788,10 +829,12 @@ class ChartData
             $ciSeries[strtolower(trim($k))] = $k;
         }
         $config = config('cupparis-chart.sinonimi_tipo_geografico',[]);
+        $keySearched = [];
         foreach ($config as $cKey => $cValidKeys) {
             //echo "$cKey " . print_r($cValidKeys,true);
             foreach ($cValidKeys as $key) {
                 //echo " cerco " . strtolower(trim($key)) . " nel vettore " . print_r($ciSeries,true);
+                $keySearched[] = $key;
                 if (Arr::exists($ciSeries,strtolower(trim($key)))) {
                     $this->mapOptions = [
                         'mode' => $cKey,
@@ -803,7 +846,7 @@ class ChartData
             }
             //echo "----\n";
         }
-        throw new \Exception('La mappa non ha una key riconosciuta come key geografica');
+        throw new \Exception('La mappa non ha una key riconosciuta come key geografica ' . join(',',$keySearched));
 
 
 //        if (array_key_exists('comune', $leftSeries)) {
