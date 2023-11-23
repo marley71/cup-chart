@@ -375,8 +375,13 @@ class ChartData
 
             }
         }
-
-        $result['range'] = $this->_calcolaIntervalli($seriesValues);
+        //Log::info("count " . count($values) . " " . print_r($values,1));
+        $quantiliValues = [];
+        foreach ($values[$subKey] as $key => $val) {
+            $quantiliValues[] = $val['total'];
+        }
+        //Log::info(print_r($quantiliValues,1));
+        $result['range'] = $this->_calcolaIntervalli($subKey,$quantiliValues);
         $result['filtersContext'] = $this->filtersContext;
         $result['seriesContext'] = $this->seriesContext;
         $result['measureName'] = $mapKey;
@@ -734,44 +739,21 @@ class ChartData
         return $result;
     }
 
-    protected function _calcolaIntervalli($seriesValues)
+    protected function _calcolaIntervalli($key,$seriesValues)
     {
         $interval = [];
 
-        foreach ($seriesValues as $key => $val) {
-            sort($val);
-            Log::info('--- serievalues' . print_r($val,1));
-            $lun = count($val);
-            sort($val);
-            $quartile = intval(count($val) / 4);
-            $interval[$key] = [];
-            $interval[$key][] = $val[$quartile];
-            $interval[$key][] = $val[$quartile*2];
-            $interval[$key][] = $val[$quartile*3];
-            $interval[$key][] = $val[count($val)-1];
-//            $valid = array_unique($seriesValues[$key]);
-//            sort($valid);
-//            $lun = count($valid);
-//            if ($lun < 4) {
-//                $min = $valid[0];
-//                $mins = [];
-//                for ($i = 0; $i < 4 - $lun; $i++) {
-//                    $mins[] = $min;
-//                }
-//                $interval[$key] = array_merge($mins, $valid);
-//            } else {
-//                $step = floor(count($valid) / 4.0);
-//                $interval[$key] = [];
-//                for ($i = 0; $i < 4; $i++) {
-//                    // TODO controllare il calcolo del range non funziona bene con valori ripetutti troppe volte
-//                    //            if ($i>0 &&
-//                    //                ($seriesValues[$i*$step]  == $seriesValues[($i-1) * $step]) )
-//                    //                continue;
-//                    $interval[$key][] = $valid[$i * $step];
-//                }
-//            }
 
-        }
+        sort($seriesValues);
+        Log::info("serievalues sorted" . print_r($seriesValues,1));
+        $quartile = intval(count($seriesValues) / 5);
+        Log::info("quartile $quartile");
+        $interval[$key] = [];
+        $interval[$key][] = $seriesValues[$quartile];
+        $interval[$key][] = $seriesValues[$quartile*2];
+        $interval[$key][] = $seriesValues[$quartile*3];
+        $interval[$key][] = $seriesValues[$quartile*4];
+        Log::info("range" . print_r($interval,1));
         return $interval;
     }
 
